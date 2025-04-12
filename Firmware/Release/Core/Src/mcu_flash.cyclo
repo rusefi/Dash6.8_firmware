@@ -1,0 +1,4 @@
+../Core/Src/mcu_flash.c:16:6:FLASH_EraseSector	1
+../Core/Src/mcu_flash.c:25:6:FLASH_SetSectorAddrs	1
+../Core/Src/mcu_flash.c:32:6:FLASH_WriteN	7
+../Core/Src/mcu_flash.c:72:6:FLASH_ReadN	7

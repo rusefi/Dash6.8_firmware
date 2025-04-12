@@ -1,0 +1,350 @@
+{
+  "Application": {
+    "Screens": [
+      {
+        "Name": "Screen1",
+        "OverrideDefaultBufferSize": true,
+        "CanvasBufferSize": 19200,
+        "Components": [
+          {
+            "Type": "Gauge",
+            "Name": "gauge2",
+            "X": 722,
+            "Width": 558,
+            "Height": 479,
+            "LockPosition": true,
+            "FileNameBackground": "Temp.png",
+            "RotationCenterX": 259.2,
+            "RotationCenterY": 240.0,
+            "StartAngle": 146.0,
+            "EndAngle": 33.0,
+            "RangeMin": 40.0,
+            "RangeMax": 130.0,
+            "InitialValue": 40.0,
+            "Easing": "Linear",
+            "EasingOption": "In",
+            "FileNameNeedle": "Vector 8.png",
+            "NeedleRotationCenterX": 7.0,
+            "NeedleRotationCenterY": 270.0,
+            "NeedleMovingRenderingAlgorithm": "Bilinear Interpolation",
+            "NeedleSteadyRenderingAlgorithm": "Bilinear Interpolation",
+            "UseArc": true,
+            "ArcColor": {
+              "Red": 30,
+              "Green": 96,
+              "Blue": 117
+            },
+            "SetArcPosition": true,
+            "ArcWidth": 546.6,
+            "ArcHeight": 479.0,
+            "ArcRadius": 257.0,
+            "ArcLineWidth": 35.0,
+            "ArcCapStyle": "Round"
+          },
+          {
+            "Type": "Gauge",
+            "Name": "gauge1",
+            "X": 7,
+            "Width": 416,
+            "Height": 480,
+            "LockPosition": true,
+            "FileNameBackground": "Fuel.png",
+            "BackgroundOffsetX": 14.6,
+            "RotationCenterX": 290.0,
+            "RotationCenterY": 240.0,
+            "StartAngle": -145.8,
+            "EndAngle": -33.0,
+            "RangeMax": 100.0,
+            "Easing": "Linear",
+            "EasingOption": "In",
+            "FileNameNeedle": "Vector 8.png",
+            "NeedleRotationCenterX": 7.6,
+            "NeedleRotationCenterY": 270.0,
+            "NeedleMovingRenderingAlgorithm": "Bilinear Interpolation",
+            "NeedleSteadyRenderingAlgorithm": "Bilinear Interpolation",
+            "UseArc": true,
+            "ArcColor": {
+              "Red": 30,
+              "Green": 96,
+              "Blue": 117
+            },
+            "SetArcPosition": true,
+            "ArcWidth": 448.0,
+            "ArcHeight": 479.0,
+            "ArcRadius": 257.0,
+            "ArcLineWidth": 35.0,
+            "ArcCapStyle": "Round"
+          },
+          {
+            "Type": "Image",
+            "Name": "image5",
+            "X": 107,
+            "Y": 1,
+            "Width": 1066,
+            "Height": 479,
+            "RelativeFilename": "Frame 69.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "indOil",
+            "X": 736,
+            "Y": 9,
+            "Width": 98,
+            "Height": 60,
+            "RelativeFilename": "oil.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "indBatt",
+            "X": 598,
+            "Y": 9,
+            "Width": 79,
+            "Height": 61,
+            "RelativeFilename": "batteryblock.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "indDTC",
+            "X": 458,
+            "Y": 8,
+            "Width": 80,
+            "Height": 62,
+            "RelativeFilename": "chek.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "indECT_blue",
+            "X": 973,
+            "Y": 359,
+            "Width": 62,
+            "Height": 66,
+            "Visible": false,
+            "RelativeFilename": "Water temp Blue.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "indECT",
+            "X": 973,
+            "Y": 359,
+            "Width": 62,
+            "Height": 66,
+            "Visible": false,
+            "RelativeFilename": "Water temp red.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "indFuel",
+            "X": 254,
+            "Y": 358,
+            "Width": 51,
+            "Height": 62,
+            "Visible": false,
+            "RelativeFilename": "fuil llov.png"
+          },
+          {
+            "Type": "TextArea",
+            "Name": "speed",
+            "X": 593,
+            "Y": 88,
+            "Width": 95,
+            "Height": 142,
+            "TextId": "__SingleUse_X3Y5",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 193,
+              "Green": 198,
+              "Blue": 199
+            },
+            "AutoSize": true,
+            "Wildcard1": {
+              "TextId": "__SingleUse_II6I",
+              "UseBuffer": true,
+              "BufferSize": 32
+            }
+          },
+          {
+            "Type": "TextArea",
+            "Name": "value_3",
+            "X": 256,
+            "Y": 263,
+            "Width": 67,
+            "Height": 100,
+            "TextId": "__SingleUse_RDWZ",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 193,
+              "Green": 198,
+              "Blue": 199
+            },
+            "AutoSize": true,
+            "Wildcard1": {
+              "TextId": "__SingleUse_L83R",
+              "UseBuffer": true,
+              "BufferSize": 32
+            }
+          },
+          {
+            "Type": "TextArea",
+            "Name": "value_2",
+            "X": 993,
+            "Y": 263,
+            "Width": 67,
+            "Height": 100,
+            "TextId": "__SingleUse_NBH4",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 193,
+              "Green": 198,
+              "Blue": 199
+            },
+            "AutoSize": true,
+            "Wildcard1": {
+              "TextId": "__SingleUse_OVOH",
+              "UseBuffer": true,
+              "BufferSize": 32
+            }
+          },
+          {
+            "Type": "TextArea",
+            "Name": "value_5",
+            "X": 554,
+            "Y": 402,
+            "Width": 49,
+            "Height": 74,
+            "TextId": "__SingleUse_A2XU",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 33,
+              "Green": 43,
+              "Blue": 49
+            },
+            "AutoSize": true,
+            "Wildcard1": {
+              "TextId": "__SingleUse_2OQK",
+              "UseBuffer": true,
+              "BufferSize": 32
+            }
+          },
+          {
+            "Type": "TextArea",
+            "Name": "value_1",
+            "X": 757,
+            "Y": 403,
+            "Width": 49,
+            "Height": 74,
+            "TextId": "__SingleUse_T4SB",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 33,
+              "Green": 43,
+              "Blue": 49
+            },
+            "AutoSize": true,
+            "Wildcard1": {
+              "TextId": "__SingleUse_5SH3",
+              "UseBuffer": true,
+              "BufferSize": 32
+            }
+          },
+          {
+            "Type": "TextArea",
+            "Name": "value_0",
+            "X": 593,
+            "Y": 281,
+            "Width": 95,
+            "Height": 142,
+            "TextId": "__SingleUse_LKJO",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 193,
+              "Green": 198,
+              "Blue": 199
+            },
+            "AutoSize": true,
+            "Wildcard1": {
+              "TextId": "__SingleUse_PK4E",
+              "UseBuffer": true,
+              "BufferSize": 32
+            }
+          },
+          {
+            "Type": "Button",
+            "Name": "changeBacklight1",
+            "X": 1186,
+            "Y": 394,
+            "Width": 84,
+            "Height": 76,
+            "Pressed": "reshot-icon-light-max-SKL25EYVD9 1.png",
+            "Released": "reshot-icon-light-max-SKL25EYVD9 1.png"
+          }
+        ],
+        "Interactions": [
+          {
+            "InteractionName": "Interaction1",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "changeBacklight1"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "changeBacklight"
+            }
+          }
+        ]
+      }
+    ],
+    "CustomContainerDefinitions": [],
+    "Name": "MyApplication",
+    "Resolution": {
+      "Width": 480,
+      "Height": 1280
+    },
+    "SelectedColorDepth": 16,
+    "StartupScreenName": "Screen1",
+    "SelectedStartupLanguage": "GB",
+    "TouchGfxPath": "../Middlewares/ST/touchgfx",
+    "UIPath": ".",
+    "AvailableColorDepths": [
+      16
+    ],
+    "AvailableLCDs": {
+      "16": "LCD16bpp"
+    },
+    "AvailableSections": [
+      "ExtFlashSection",
+      "IntFlashSection"
+    ],
+    "AvailableResolutions": [
+      {
+        "Width": 480,
+        "Height": 1280
+      }
+    ],
+    "PhysicalButtons": [],
+    "FrameworkFeatures": {
+      "LCD16bpp": {
+        "Id": "LCD16bpp",
+        "IsEnabled": true
+      }
+    },
+    "GenerateAssetsCommand": "make -f simulator/gcc/Makefile assets -j8",
+    "PostGenerateCommand": "touchgfx update_project --project-file=simulator/msvs/Application.vcxproj",
+    "PostGenerateTargetCommand": "touchgfx update_project",
+    "CompileSimulatorCommand": "make -f simulator/gcc/Makefile -j8",
+    "RunSimulatorCommand": "build\\bin\\simulator.exe",
+    "LandscapeSkinX": 0,
+    "LandscapeSkinY": 0,
+    "PortraitSkinX": 0,
+    "PortraitSkinY": 0,
+    "DisplayOrientation": "Landscape",
+    "Family": "STM32F4",
+    "SubFamily": "STM32F429/439",
+    "Toolchain": "STM32CubeIDE",
+    "Platform": "m4",
+    "ProjectFile": "../LCD_CAR_WIDE.ioc",
+    "OptionalComponentsRoot": "../Middlewares/ST/touchgfx_components",
+    "OptionalComponents": [],
+    "AdditionalFeatures": []
+  },
+  "Version": "4.22.0"
+}

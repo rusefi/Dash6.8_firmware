@@ -1,0 +1,8 @@
+../Core/Src/FT5XX6.c:28:6:FT5XX6_Write	24	static
+../Core/Src/FT5XX6.c:12:9:FT5XX6_Init	8	static
+../Core/Src/FT5XX6.c:40:9:FT5XX6_Read	32	static
+../Core/Src/FT5XX6.c:51:6:FT5XX6_ReadMultiple	24	static
+../Core/Src/FT5XX6.c:58:9:FT5XX6_GetMode	0	static
+../Core/Src/FT5XX6.c:65:9:FT5XX6_GetGeastureID	0	static
+../Core/Src/FT5XX6.c:72:9:FT5XX6_GetNumOfTouches	0	static
+../Core/Src/FT5XX6.c:79:16:FT5XX6_ReadPoint	48	static

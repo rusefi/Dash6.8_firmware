@@ -1,0 +1,2 @@
+Table_bahnschrift_25_2bpp.cpp:94:183:void __tcf_0()	0	static
+Table_bahnschrift_25_2bpp.cpp:92:26:touchgfx::GeneratedFont& getFont_bahnschrift_25_2bpp()	72	static
