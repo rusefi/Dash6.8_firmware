@@ -184,12 +184,6 @@
     <Filter Include="Header Files\generated\gui_generated\screen1_screen">
       <UniqueIdentifier>7ADC98EE-41B9-1DB2-A405-8F2D716D7BFD</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\gui\screen2_screen">
-      <UniqueIdentifier>F72249D1-DFB9-4FAE-DFFC-A6BECFC1DAFA</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\gui\screen2_screen">
-      <UniqueIdentifier>6016AD68-B468-8032-8216-35B61DB566D0</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(TouchGFXReleasePath)\framework\source\platform\driver\touch\SDL2TouchController.cpp">
@@ -230,9 +224,6 @@
     </ClCompile>
     <ClCompile Include="..\..\generated\gui_generated\src\screen1_screen\Screen1ViewBase.cpp">
       <Filter>Source Files\generated\gui_generated\screen1_screen</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\gui\src\screen2_screen\Screen2View.cpp">
-      <Filter>Source Files\gui\screen2_screen</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -684,9 +675,6 @@
     </ClInclude>
     <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\screen1_screen\Screen1ViewBase.hpp">
       <Filter>Header Files\generated\gui_generated\screen1_screen</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\gui\include\gui\screen2_screen\Screen2View.hpp">
-      <Filter>Header Files\gui\screen2_screen</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

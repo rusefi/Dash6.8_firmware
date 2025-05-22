@@ -7,6 +7,16 @@
         "CanvasBufferSize": 19200,
         "Components": [
           {
+            "Type": "Button",
+            "Name": "left_button",
+            "X": 7,
+            "Y": 14,
+            "Width": 70,
+            "Height": 68,
+            "Pressed": "record.circle.png",
+            "Released": "record.circle.png"
+          },
+          {
             "Type": "Gauge",
             "Name": "gauge2",
             "X": 722,
@@ -78,37 +88,40 @@
           {
             "Type": "Image",
             "Name": "image5",
-            "X": 107,
+            "X": 96,
             "Y": 1,
-            "Width": 1066,
+            "Width": 1088,
             "Height": 479,
             "RelativeFilename": "Frame 69.png"
           },
           {
             "Type": "Image",
             "Name": "indOil",
-            "X": 736,
+            "X": 662,
             "Y": 9,
             "Width": 98,
             "Height": 60,
+            "Visible": false,
             "RelativeFilename": "oil.png"
           },
           {
             "Type": "Image",
             "Name": "indBatt",
-            "X": 598,
+            "X": 552,
             "Y": 9,
             "Width": 79,
             "Height": 61,
+            "Visible": false,
             "RelativeFilename": "batteryblock.png"
           },
           {
             "Type": "Image",
             "Name": "indDTC",
-            "X": 458,
+            "X": 443,
             "Y": 8,
             "Width": 80,
             "Height": 62,
+            "Visible": false,
             "RelativeFilename": "chek.png"
           },
           {
@@ -142,12 +155,22 @@
             "RelativeFilename": "fuil llov.png"
           },
           {
+            "Type": "Image",
+            "Name": "indServis",
+            "X": 788,
+            "Y": 15,
+            "Width": 60,
+            "Height": 56,
+            "Visible": false,
+            "RelativeFilename": "Vector.png"
+          },
+          {
             "Type": "TextArea",
             "Name": "speed",
             "X": 593,
             "Y": 88,
             "Width": 95,
-            "Height": 142,
+            "Height": 122,
             "TextId": "__SingleUse_X3Y5",
             "TextRotation": "0",
             "Color": {
@@ -167,8 +190,8 @@
             "Name": "value_3",
             "X": 256,
             "Y": 263,
-            "Width": 67,
-            "Height": 100,
+            "Width": 62,
+            "Height": 79,
             "TextId": "__SingleUse_RDWZ",
             "TextRotation": "0",
             "Color": {
@@ -185,11 +208,32 @@
           },
           {
             "Type": "TextArea",
+            "Name": "value_9",
+            "X": 256,
+            "Y": 135,
+            "Width": 62,
+            "Height": 79,
+            "TextId": "__SingleUse_NP6C",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 193,
+              "Green": 198,
+              "Blue": 199
+            },
+            "AutoSize": true,
+            "Wildcard1": {
+              "TextId": "__SingleUse_QE8S",
+              "UseBuffer": true,
+              "BufferSize": 32
+            }
+          },
+          {
+            "Type": "TextArea",
             "Name": "value_2",
-            "X": 993,
+            "X": 997,
             "Y": 263,
-            "Width": 67,
-            "Height": 100,
+            "Width": 62,
+            "Height": 79,
             "TextId": "__SingleUse_NBH4",
             "TextRotation": "0",
             "Color": {
@@ -206,32 +250,11 @@
           },
           {
             "Type": "TextArea",
-            "Name": "value_5",
-            "X": 554,
-            "Y": 402,
-            "Width": 49,
-            "Height": 74,
-            "TextId": "__SingleUse_A2XU",
-            "TextRotation": "0",
-            "Color": {
-              "Red": 33,
-              "Green": 43,
-              "Blue": 49
-            },
-            "AutoSize": true,
-            "Wildcard1": {
-              "TextId": "__SingleUse_2OQK",
-              "UseBuffer": true,
-              "BufferSize": 32
-            }
-          },
-          {
-            "Type": "TextArea",
             "Name": "value_1",
-            "X": 757,
-            "Y": 403,
-            "Width": 49,
-            "Height": 74,
+            "X": 802,
+            "Y": 414,
+            "Width": 41,
+            "Height": 53,
             "TextId": "__SingleUse_T4SB",
             "TextRotation": "0",
             "Color": {
@@ -252,7 +275,7 @@
             "X": 593,
             "Y": 281,
             "Width": 95,
-            "Height": 142,
+            "Height": 122,
             "TextId": "__SingleUse_LKJO",
             "TextRotation": "0",
             "Color": {
@@ -270,12 +293,384 @@
           {
             "Type": "Button",
             "Name": "changeBacklight1",
-            "X": 1186,
-            "Y": 394,
+            "X": 1190,
+            "Y": 401,
             "Width": 84,
             "Height": 76,
             "Pressed": "reshot-icon-light-max-SKL25EYVD9 1.png",
             "Released": "reshot-icon-light-max-SKL25EYVD9 1.png"
+          },
+          {
+            "Type": "Button",
+            "Name": "right_button",
+            "X": 1204,
+            "Y": 14,
+            "Width": 70,
+            "Height": 68,
+            "Pressed": "record.circle.png",
+            "Released": "record.circle.png"
+          },
+          {
+            "Type": "Container",
+            "Name": "container2",
+            "X": 384,
+            "Y": 409,
+            "Width": 286,
+            "Height": 69,
+            "Components": [
+              {
+                "Type": "TextArea",
+                "Name": "value_5",
+                "X": 173,
+                "Y": 5,
+                "Width": 41,
+                "Height": 53,
+                "TextId": "__SingleUse_HF52",
+                "TextRotation": "0",
+                "Color": {
+                  "Red": 33,
+                  "Green": 43,
+                  "Blue": 49
+                },
+                "AutoSize": true,
+                "Wildcard1": {
+                  "TextId": "__SingleUse_PBW6",
+                  "UseBuffer": true,
+                  "BufferSize": 32
+                }
+              },
+              {
+                "Type": "Image",
+                "Name": "image7",
+                "X": 219,
+                "Y": 27,
+                "Width": 63,
+                "Height": 24,
+                "RelativeFilename": "lh.png"
+              }
+            ]
+          },
+          {
+            "Type": "Container",
+            "Name": "container3",
+            "X": 388,
+            "Y": 409,
+            "Width": 300,
+            "Height": 68,
+            "Visible": false,
+            "Components": [
+              {
+                "Type": "TextArea",
+                "Name": "value_7",
+                "X": 237,
+                "Y": 5,
+                "Width": 41,
+                "Height": 53,
+                "TextId": "__SingleUse_XO2T",
+                "TextRotation": "0",
+                "Color": {
+                  "Red": 33,
+                  "Green": 43,
+                  "Blue": 49
+                },
+                "AutoSize": true,
+                "Wildcard1": {
+                  "TextId": "__SingleUse_KJCD",
+                  "UseBuffer": true,
+                  "BufferSize": 32
+                }
+              },
+              {
+                "Type": "TextArea",
+                "Name": "textArea2",
+                "X": 225,
+                "Y": -17,
+                "Width": 14,
+                "Height": 79,
+                "TextId": "__SingleUse_4PFL",
+                "TextRotation": "0",
+                "Color": {
+                  "Red": 33,
+                  "Green": 43,
+                  "Blue": 49
+                },
+                "AutoSize": true
+              },
+              {
+                "Type": "TextArea",
+                "Name": "value_8",
+                "X": 186,
+                "Y": 5,
+                "Width": 41,
+                "Height": 53,
+                "TextId": "__SingleUse_V7MX",
+                "TextRotation": "0",
+                "Color": {
+                  "Red": 33,
+                  "Green": 43,
+                  "Blue": 49
+                },
+                "AutoSize": true,
+                "Wildcard1": {
+                  "TextId": "__SingleUse_L3IM",
+                  "UseBuffer": true,
+                  "BufferSize": 32
+                }
+              },
+              {
+                "Type": "Image",
+                "Name": "image9",
+                "X": 279,
+                "Y": 25,
+                "Width": 22,
+                "Height": 24,
+                "RelativeFilename": "h.png"
+              }
+            ]
+          },
+          {
+            "Type": "Image",
+            "Name": "image8",
+            "X": 846,
+            "Y": 434,
+            "Width": 30,
+            "Height": 24,
+            "RelativeFilename": "V.png"
+          },
+          {
+            "Type": "Container",
+            "Name": "container4",
+            "X": 886,
+            "Y": 24,
+            "Width": 310,
+            "Height": 250,
+            "Visible": false,
+            "Components": [
+              {
+                "Type": "Gauge",
+                "Name": "gauge4",
+                "X": 68,
+                "Y": 24,
+                "Width": 240,
+                "Height": 240,
+                "FileNameBackground": "Group 38.png",
+                "RotationCenterX": 21.5,
+                "RotationCenterY": 190.4,
+                "StartAngle": 87.3,
+                "EndAngle": 2.3,
+                "RangeMax": 130.0,
+                "Easing": "Linear",
+                "EasingOption": "In",
+                "FileNameNeedle": "Needl_Oil.png",
+                "NeedleRotationCenterX": 6.2,
+                "NeedleRotationCenterY": 192.2,
+                "NeedleMovingRenderingAlgorithm": "Bilinear Interpolation",
+                "NeedleSteadyRenderingAlgorithm": "Bilinear Interpolation",
+                "UseArc": true,
+                "ArcColor": {
+                  "Red": 20,
+                  "Green": 151,
+                  "Blue": 197
+                },
+                "SetArcPosition": true,
+                "ArcX": 20.0,
+                "ArcWidth": 210.0,
+                "ArcHeight": 210.0,
+                "ArcRadius": 175.0,
+                "ArcLineWidth": 13.0,
+                "ArcCapStyle": "Round"
+              },
+              {
+                "Type": "TextArea",
+                "Name": "value_10",
+                "X": 95,
+                "Y": 136,
+                "Width": 41,
+                "Height": 53,
+                "TextId": "__SingleUse_J6GL",
+                "TextRotation": "0",
+                "Color": {
+                  "Red": 193,
+                  "Green": 198,
+                  "Blue": 199
+                },
+                "AutoSize": true,
+                "Wildcard1": {
+                  "TextId": "__SingleUse_GKKV",
+                  "UseBuffer": true,
+                  "BufferSize": 32
+                }
+              }
+            ]
+          },
+          {
+            "Type": "Container",
+            "Name": "container5",
+            "X": 954,
+            "Y": 43,
+            "Width": 250,
+            "Height": 250,
+            "Visible": false,
+            "Components": [
+              {
+                "Type": "Gauge",
+                "Name": "gauge3",
+                "Y": 5,
+                "Width": 240,
+                "Height": 240,
+                "FileNameBackground": "Group 39.png",
+                "RotationCenterX": 21.5,
+                "RotationCenterY": 190.4,
+                "StartAngle": 87.3,
+                "EndAngle": 2.3,
+                "RangeMax": 10.0,
+                "Easing": "Linear",
+                "EasingOption": "In",
+                "FileNameNeedle": "Needl_Oil.png",
+                "NeedleRotationCenterX": 6.2,
+                "NeedleRotationCenterY": 192.2,
+                "NeedleMovingRenderingAlgorithm": "Bilinear Interpolation",
+                "NeedleSteadyRenderingAlgorithm": "Bilinear Interpolation",
+                "UseArc": true,
+                "ArcColor": {
+                  "Red": 20,
+                  "Green": 151,
+                  "Blue": 197
+                },
+                "SetArcPosition": true,
+                "ArcX": 20.0,
+                "ArcWidth": 210.0,
+                "ArcHeight": 210.0,
+                "ArcRadius": 175.0,
+                "ArcLineWidth": 13.0,
+                "ArcCapStyle": "Round"
+              },
+              {
+                "Type": "TextArea",
+                "Name": "value_11",
+                "X": 27,
+                "Y": 117,
+                "Width": 41,
+                "Height": 53,
+                "TextId": "__SingleUse_698Z",
+                "TextRotation": "0",
+                "Color": {
+                  "Red": 193,
+                  "Green": 198,
+                  "Blue": 199
+                },
+                "AutoSize": true,
+                "Wildcard1": {
+                  "TextId": "__SingleUse_JNAI",
+                  "UseBuffer": true,
+                  "BufferSize": 32
+                }
+              }
+            ]
+          },
+          {
+            "Type": "Container",
+            "Name": "container6",
+            "X": 954,
+            "Y": 43,
+            "Width": 250,
+            "Height": 250,
+            "Components": [
+              {
+                "Type": "Gauge",
+                "Name": "gauge5",
+                "Y": 5,
+                "Width": 240,
+                "Height": 240,
+                "FileNameBackground": "Group 42.png",
+                "RotationCenterX": 21.5,
+                "RotationCenterY": 190.4,
+                "StartAngle": 87.3,
+                "EndAngle": 2.3,
+                "RangeMax": 100.0,
+                "Easing": "Linear",
+                "EasingOption": "In",
+                "FileNameNeedle": "Needl_Oil.png",
+                "NeedleRotationCenterX": 6.2,
+                "NeedleRotationCenterY": 192.2,
+                "NeedleMovingRenderingAlgorithm": "Bilinear Interpolation",
+                "NeedleSteadyRenderingAlgorithm": "Bilinear Interpolation",
+                "UseArc": true,
+                "ArcColor": {
+                  "Red": 20,
+                  "Green": 151,
+                  "Blue": 197
+                },
+                "SetArcPosition": true,
+                "ArcX": 20.0,
+                "ArcWidth": 210.0,
+                "ArcHeight": 210.0,
+                "ArcRadius": 175.0,
+                "ArcLineWidth": 13.0,
+                "ArcCapStyle": "Round"
+              },
+              {
+                "Type": "TextArea",
+                "Name": "value_12",
+                "X": 27,
+                "Y": 117,
+                "Width": 41,
+                "Height": 53,
+                "TextId": "__SingleUse_GGVJ",
+                "TextRotation": "0",
+                "Color": {
+                  "Red": 193,
+                  "Green": 198,
+                  "Blue": 199
+                },
+                "AutoSize": true,
+                "Wildcard1": {
+                  "TextId": "__SingleUse_5P31",
+                  "UseBuffer": true,
+                  "BufferSize": 32
+                }
+              }
+            ]
+          },
+          {
+            "Type": "Container",
+            "Name": "container1",
+            "X": 237,
+            "Y": 63,
+            "Width": 833,
+            "Height": 236,
+            "Visible": false,
+            "Components": [
+              {
+                "Type": "Image",
+                "Name": "image6",
+                "X": 20,
+                "Y": 7,
+                "Width": 766,
+                "Height": 237,
+                "RelativeFilename": "Frame 66.png"
+              },
+              {
+                "Type": "TextArea",
+                "Name": "textArea1",
+                "X": 400,
+                "Y": 78,
+                "Height": 53,
+                "TextId": "__SingleUse_1BQN",
+                "TextRotation": "0",
+                "Color": {
+                  "Red": 193,
+                  "Green": 198,
+                  "Blue": 199
+                },
+                "AutoSize": true,
+                "Wildcard1": {
+                  "TextId": "__SingleUse_XT9B",
+                  "UseBuffer": true,
+                  "BufferSize": 64
+                }
+              }
+            ]
           }
         ],
         "Interactions": [
@@ -288,6 +683,28 @@
             "Action": {
               "Type": "ActionCustom",
               "FunctionName": "changeBacklight"
+            }
+          },
+          {
+            "InteractionName": "Interaction2",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "left_button"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "leftbutton"
+            }
+          },
+          {
+            "InteractionName": "Interaction3",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "right_button"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "rightbutton"
             }
           }
         ]

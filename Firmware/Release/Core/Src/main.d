@@ -53,6 +53,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_dma.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_exti.h \
+ ../Core/Inc/z_flash_W25QXXX.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h \
  ../Core/Inc/FreeRTOSConfig.h \
@@ -70,10 +71,12 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Core/Inc/Def/CAN_Def.h ../Core/Inc/Def/UNIT_Def.h \
  ../Core/Inc/Def/IO_Def.h ../Core/Inc/Def/STORAGE_Def.h \
  ../Core/Inc/Def/SCREEN_Def.h ../Core/Inc/extern.h ../Core/Inc/Globals.h \
- ../Core/Inc/sdram.h ../Core/Src/WS2812/WS2812.hpp ../Core/Inc/nmea.h \
- ../Core/Inc/main.h ../Core/Inc/nmea_config.h ../Core/Inc/spi_flash.h \
- ../Core/Inc/mcu_flash.h ../Core/Inc/TargetTouch.h ../Core/Inc/FT5XX6.h \
- ../Core/Inc/Setup/Dash/setupDash.h ../Core/Inc/Setup/Field/setupField.h
+ ../Core/Inc/sdram.h ../Core/Inc/nmea.h ../Core/Inc/main.h \
+ ../Core/Inc/nmea_config.h ../Core/Inc/TargetTouch.h \
+ ../Core/Inc/ili211x.h ../Core/Inc/Setup/Dash/setupDash.h \
+ ../Core/Inc/Setup/Field/setupField.h ../Core/Inc/eeprom24lc512.h \
+ ../Core/Inc/usart3_json_dma.h ../Core/Inc/cJSON.h ../Core/Inc/CAN.h \
+ ../Core/Inc/extern.h ../Core/Inc/json_dispatcher.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
@@ -129,6 +132,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_dma.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_exti.h:
+../Core/Inc/z_flash_W25QXXX.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h:
 ../Core/Inc/FreeRTOSConfig.h:
@@ -153,13 +157,16 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/extern.h:
 ../Core/Inc/Globals.h:
 ../Core/Inc/sdram.h:
-../Core/Src/WS2812/WS2812.hpp:
 ../Core/Inc/nmea.h:
 ../Core/Inc/main.h:
 ../Core/Inc/nmea_config.h:
-../Core/Inc/spi_flash.h:
-../Core/Inc/mcu_flash.h:
 ../Core/Inc/TargetTouch.h:
-../Core/Inc/FT5XX6.h:
+../Core/Inc/ili211x.h:
 ../Core/Inc/Setup/Dash/setupDash.h:
 ../Core/Inc/Setup/Field/setupField.h:
+../Core/Inc/eeprom24lc512.h:
+../Core/Inc/usart3_json_dma.h:
+../Core/Inc/cJSON.h:
+../Core/Inc/CAN.h:
+../Core/Inc/extern.h:
+../Core/Inc/json_dispatcher.h:

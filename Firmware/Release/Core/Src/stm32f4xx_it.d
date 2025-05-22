@@ -53,8 +53,8 @@ Core/Src/stm32f4xx_it.o: ../Core/Src/stm32f4xx_it.c ../Core/Inc/main.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_dma.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_exti.h \
- ../Core/Inc/stm32f4xx_it.h ../Core/Inc/nmea.h ../Core/Inc/main.h \
- ../Core/Inc/nmea_config.h \
+ ../Core/Inc/z_flash_W25QXXX.h ../Core/Inc/stm32f4xx_it.h \
+ ../Core/Inc/nmea.h ../Core/Inc/main.h ../Core/Inc/nmea_config.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h \
  ../Core/Inc/FreeRTOSConfig.h \
@@ -121,6 +121,7 @@ Core/Src/stm32f4xx_it.o: ../Core/Src/stm32f4xx_it.c ../Core/Inc/main.h \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_dma.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_exti.h:
+../Core/Inc/z_flash_W25QXXX.h:
 ../Core/Inc/stm32f4xx_it.h:
 ../Core/Inc/nmea.h:
 ../Core/Inc/main.h:

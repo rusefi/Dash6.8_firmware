@@ -1,5 +1,5 @@
 ../Core/Src/TargetTouch.c:13:6:TOUCH_Init	1
-../Core/Src/TargetTouch.c:19:9:TOUCH_IsPressed	1
-../Core/Src/TargetTouch.c:23:6:TOUCH_Set	1
-../Core/Src/TargetTouch.c:28:6:TOUCH_Reset	2
-../Core/Src/TargetTouch.c:34:12:TOUCH_GetData	1
+../Core/Src/TargetTouch.c:25:9:TOUCH_IsPressed	1
+../Core/Src/TargetTouch.c:32:6:TOUCH_Set	1
+../Core/Src/TargetTouch.c:39:6:TOUCH_Reset	1
+../Core/Src/TargetTouch.c:49:12:TOUCH_GetData	2

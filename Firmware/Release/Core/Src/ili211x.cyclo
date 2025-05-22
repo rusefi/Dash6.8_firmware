@@ -1,0 +1,8 @@
+../Core/Src/ili211x.c:64:6:ILI211X_Write	1
+../Core/Src/ili211x.c:48:9:ILI211X_Init	2
+../Core/Src/ili211x.c:73:9:ILI211X_Read	2
+../Core/Src/ili211x.c:82:6:ILI211X_ReadMultiple	1
+../Core/Src/ili211x.c:87:9:ILI211X_GetGestureID	1
+../Core/Src/ili211x.c:92:9:ILI211X_GetNumOfTouches	1
+../Core/Src/ili211x.c:97:16:ILI211X_ReadPoint	5
+../Core/Src/ili211x.c:115:6:ILI211X_SetDisplaySize	1

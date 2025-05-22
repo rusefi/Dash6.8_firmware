@@ -1,0 +1,14 @@
+../Core/Src/eeprom24lc512.c:19:17:CRC32_Calc	16	static
+../Core/Src/eeprom24lc512.c:116:26:EEPROM_Read	32	static
+../Core/Src/eeprom24lc512.c:47:6:EEPROM_Init	12	static
+../Core/Src/eeprom24lc512.c:56:19:eeprom_wait_ready	16	static
+../Core/Src/eeprom24lc512.c:75:26:EEPROM_Write	192	static
+../Core/Src/eeprom24lc512.c:136:6:EEPROM_WriteDual	160	static
+../Core/Src/eeprom24lc512.c:161:6:EEPROM_ReadDual	312	static
+../Core/Src/eeprom24lc512.c:208:6:EEPROM_WriteMotohours	16	static
+../Core/Src/eeprom24lc512.c:213:6:EEPROM_ReadMotohours	4	static
+../Core/Src/eeprom24lc512.c:218:6:EEPROM_ResetMotohours	16	static
+../Core/Src/eeprom24lc512.c:225:6:EEPROM_WriteFlags	16	static
+../Core/Src/eeprom24lc512.c:230:10:EEPROM_ReadFlags	16	static
+../Core/Src/eeprom24lc512.c:238:6:EEPROM_WriteArray	4	static
+../Core/Src/eeprom24lc512.c:243:6:EEPROM_ReadArray	4	static

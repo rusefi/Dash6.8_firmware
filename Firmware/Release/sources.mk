@@ -38,9 +38,7 @@ CPP_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
-Core/Inc \
 Core/Src \
-Core/Src/WS2812 \
 Core/Startup \
 Drivers/STM32F4xx_HAL_Driver/Src \
 Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src \
@@ -61,7 +59,6 @@ TouchGFX/generated/fonts/src \
 TouchGFX/generated/gui_generated/src/common \
 TouchGFX/generated/gui_generated/src/screen1_screen \
 TouchGFX/generated/images/src \
-TouchGFX/generated/images/src/__generated \
 TouchGFX/generated/texts/src \
 TouchGFX/gui/src/common \
 TouchGFX/gui/src/model \

@@ -13,6 +13,8 @@ public:
     virtual void tearDownScreen();
     virtual void handleTickEvent();
     virtual void changeBacklight();
+    virtual void leftbutton();
+    virtual void rightbutton();
 protected:
 };
 

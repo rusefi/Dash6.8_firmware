@@ -1,0 +1,6 @@
+../Core/Src/usart3_json_dma.c:52:26:send_next_packet	24	static
+../Core/Src/usart3_json_dma.c:31:6:USART3_JSON_Init	16	static
+../Core/Src/usart3_json_dma.c:82:19:USART3_JSON_Send	16	static
+../Core/Src/usart3_json_dma.c:94:6:USART3_JSON_RxEventCallback	32	static
+../Core/Src/usart3_json_dma.c:134:9:USART3_JSON_IsTxBusy	0	static
+../Core/Src/usart3_json_dma.c:136:6:USART3_JSON_TxCpltCallback	0	static

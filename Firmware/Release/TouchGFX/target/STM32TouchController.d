@@ -4,7 +4,7 @@ TouchGFX/target/STM32TouchController.o: \
  ../Middlewares/ST/touchgfx/framework/include/platform/driver/touch/TouchController.hpp \
  ../Middlewares/ST/touchgfx/framework/include/touchgfx/hal/Types.hpp \
  ../Middlewares/ST/touchgfx/framework/include/touchgfx/hal/Config.hpp \
- ../Core/Inc/TargetTouch.h \
+ ../Core/Inc/TargetTouch.h ../Core/Inc/ili211x.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  ../Core/Inc/stm32f4xx_hal_conf.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h \
@@ -48,13 +48,13 @@ TouchGFX/target/STM32TouchController.o: \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h \
- ../Core/Inc/FT5XX6.h
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h
 ../TouchGFX/target/STM32TouchController.hpp:
 ../Middlewares/ST/touchgfx/framework/include/platform/driver/touch/TouchController.hpp:
 ../Middlewares/ST/touchgfx/framework/include/touchgfx/hal/Types.hpp:
 ../Middlewares/ST/touchgfx/framework/include/touchgfx/hal/Config.hpp:
 ../Core/Inc/TargetTouch.h:
+../Core/Inc/ili211x.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:
@@ -99,4 +99,3 @@ TouchGFX/target/STM32TouchController.o: \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h:
-../Core/Inc/FT5XX6.h:

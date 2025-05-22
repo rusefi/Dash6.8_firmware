@@ -1,11 +1,12 @@
 ../Middlewares/ST/touchgfx/framework/include/touchgfx/Screen.hpp:104:18:virtual void touchgfx::Screen::afterTransition()	1
 ../Middlewares/ST/touchgfx/framework/include/touchgfx/Screen.hpp:154:18:virtual void touchgfx::Screen::handleKeyEvent(uint8_t)	1
-../TouchGFX/generated/gui_generated/include/gui_generated/screen1_screen/Screen1ViewBase.hpp:28:18:virtual void Screen1ViewBase::action1()	1
-../TouchGFX/gui/src/screen1_screen/Screen1View.cpp:218:6:virtual void Screen1View::tearDownScreen()	1
+../TouchGFX/gui/src/screen1_screen/Screen1View.cpp:10:6:virtual void Screen1View::changeBacklight()	1
+../TouchGFX/gui/src/screen1_screen/Screen1View.cpp:62:6:virtual void Screen1View::tearDownScreen()	1
 ../TouchGFX/gui/include/gui/screen1_screen/Screen1View.hpp:11:13:Screen1View::~Screen1View()	1
 ../TouchGFX/gui/include/gui/screen1_screen/Screen1View.hpp:11:13:virtual Screen1View::~Screen1View()	1
 ../Middlewares/ST/touchgfx/framework/include/touchgfx/Unicode.hpp:404:25:static touchgfx::Unicode::UnicodeChar* touchgfx::Unicode::snprintfFloat(UnicodeChar*, uint16_t, const char*, float)	1
-../Middlewares/ST/touchgfx/framework/include/touchgfx/Drawable.hpp:343:10:void touchgfx::Drawable::setXY(int16_t, int16_t)	1
 ../TouchGFX/gui/src/screen1_screen/Screen1View.cpp:7:1:Screen1View::Screen1View()	1
-../TouchGFX/gui/src/screen1_screen/Screen1View.cpp:11:6:virtual void Screen1View::setupScreen()	6
-../TouchGFX/gui/src/screen1_screen/Screen1View.cpp:222:6:virtual void Screen1View::handleTickEvent()	2
+../TouchGFX/gui/src/screen1_screen/Screen1View.cpp:17:6:virtual void Screen1View::leftbutton()	2
+../TouchGFX/gui/src/screen1_screen/Screen1View.cpp:38:6:virtual void Screen1View::rightbutton()	2
+../TouchGFX/gui/src/screen1_screen/Screen1View.cpp:57:6:virtual void Screen1View::setupScreen()	1
+../TouchGFX/gui/src/screen1_screen/Screen1View.cpp:66:6:virtual void Screen1View::handleTickEvent()	2

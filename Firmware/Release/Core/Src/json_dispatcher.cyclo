@@ -1,0 +1,6 @@
+../Core/Src/ json_dispatcher.c:19:5:parse_status_json	43
+../Core/Src/ json_dispatcher.c:52:5:parse_flags_json	21
+../Core/Src/ json_dispatcher.c:72:5:parse_command_json	9
+../Core/Src/ json_dispatcher.c:93:5:parse_data_json	7
+../Core/Src/ json_dispatcher.c:113:5:parse_request_json	9
+../Core/Src/ json_dispatcher.c:134:5:parse_and_dispatch_json	10

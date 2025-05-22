@@ -17,7 +17,6 @@ RM := rm -rf
 -include TouchGFX/gui/src/model/subdir.mk
 -include TouchGFX/gui/src/common/subdir.mk
 -include TouchGFX/generated/texts/src/subdir.mk
--include TouchGFX/generated/images/src/__generated/subdir.mk
 -include TouchGFX/generated/images/src/subdir.mk
 -include TouchGFX/generated/gui_generated/src/screen1_screen/subdir.mk
 -include TouchGFX/generated/gui_generated/src/common/subdir.mk
@@ -38,9 +37,7 @@ RM := rm -rf
 -include Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/subdir.mk
 -include Drivers/STM32F4xx_HAL_Driver/Src/subdir.mk
 -include Core/Startup/subdir.mk
--include Core/Src/WS2812/subdir.mk
 -include Core/Src/subdir.mk
--include Core/Inc/subdir.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -113,8 +110,8 @@ all: main-build
 main-build: LCD_CAR_WIDE.elf secondary-outputs
 
 # Tool invocations
-LCD_CAR_WIDE.elf LCD_CAR_WIDE.map: $(OBJS) $(USER_OBJS) D:\Pro_RusEFI\Dash\Dash-6.8-web\Firmware\STM32F429IITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-g++ -o "LCD_CAR_WIDE.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\Pro_RusEFI\Dash\Dash-6.8-web\Firmware\STM32F429IITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="LCD_CAR_WIDE.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+LCD_CAR_WIDE.elf LCD_CAR_WIDE.map: $(OBJS) $(USER_OBJS) C:\Users\Раман\Documents\Dash-6.8-web-work\Firmware\STM32F429IITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-g++ -o "LCD_CAR_WIDE.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\Раман\Documents\Dash-6.8-web-work\Firmware\STM32F429IITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="LCD_CAR_WIDE.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

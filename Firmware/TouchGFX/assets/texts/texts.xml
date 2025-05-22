@@ -6,16 +6,61 @@
   <Texts>
     <TextGroup Id="Group1" />
     <TextGroup Id="Unsorted">
+      <Text Id="__SingleUse_5P31" Alignment="Left" TypographyId="Sensor_Values">
+        <Translation Language="GB">0</Translation>
+      </Text>
+      <Text Id="__SingleUse_GGVJ" Alignment="Left" TypographyId="Sensor_Values">
+        <Translation Language="GB">&lt;value&gt;</Translation>
+      </Text>
+      <Text Id="__SingleUse_JNAI" Alignment="Left" TypographyId="Sensor_Values">
+        <Translation Language="GB">0</Translation>
+      </Text>
+      <Text Id="__SingleUse_698Z" Alignment="Left" TypographyId="Sensor_Values">
+        <Translation Language="GB">&lt;value&gt;</Translation>
+      </Text>
+      <Text Id="__SingleUse_GKKV" Alignment="Left" TypographyId="Sensor_Values">
+        <Translation Language="GB">0</Translation>
+      </Text>
+      <Text Id="__SingleUse_J6GL" Alignment="Left" TypographyId="Sensor_Values">
+        <Translation Language="GB">&lt;value&gt;</Translation>
+      </Text>
+      <Text Id="__SingleUse_QE8S" Alignment="Left" TypographyId="Sensor_Label">
+        <Translation Language="GB">0</Translation>
+      </Text>
+      <Text Id="__SingleUse_NP6C" Alignment="Right" TypographyId="Sensor_Label">
+        <Translation Language="GB">&lt;value&gt;</Translation>
+      </Text>
+      <Text Id="__SingleUse_4PFL" Alignment="Left" TypographyId="Sensor_Label">
+        <Translation Language="GB">.</Translation>
+      </Text>
+      <Text Id="__SingleUse_L3IM" Alignment="Left" TypographyId="Sensor_Label">
+        <Translation Language="GB">0</Translation>
+      </Text>
+      <Text Id="__SingleUse_V7MX" Alignment="Right" TypographyId="Sensor_Values">
+        <Translation Language="GB">&lt;value&gt;</Translation>
+      </Text>
+      <Text Id="__SingleUse_KJCD" Alignment="Left" TypographyId="Sensor_Label">
+        <Translation Language="GB">0</Translation>
+      </Text>
+      <Text Id="__SingleUse_XO2T" Alignment="Right" TypographyId="Sensor_Values">
+        <Translation Language="GB">&lt;value&gt;</Translation>
+      </Text>
+      <Text Id="__SingleUse_XT9B" Alignment="Left" TypographyId="Sensor_Values">
+        <Translation Language="GB"></Translation>
+      </Text>
+      <Text Id="__SingleUse_1BQN" Alignment="Center" TypographyId="Sensor_Values">
+        <Translation Language="GB">&lt;value&gt;</Translation>
+      </Text>
+      <Text Id="__SingleUse_PBW6" Alignment="Left" TypographyId="Sensor_Label">
+        <Translation Language="GB">0</Translation>
+      </Text>
+      <Text Id="__SingleUse_HF52" Alignment="Right" TypographyId="Sensor_Values">
+        <Translation Language="GB">&lt;value&gt;</Translation>
+      </Text>
       <Text Id="__SingleUse_5SH3" Alignment="Left" TypographyId="Sensor_Values">
         <Translation Language="GB">0</Translation>
       </Text>
       <Text Id="__SingleUse_T4SB" Alignment="Right" TypographyId="Sensor_Values">
-        <Translation Language="GB">&lt;value&gt;</Translation>
-      </Text>
-      <Text Id="__SingleUse_2OQK" Alignment="Left" TypographyId="Sensor_Label">
-        <Translation Language="GB">0</Translation>
-      </Text>
-      <Text Id="__SingleUse_A2XU" Alignment="Right" TypographyId="Sensor_Values">
         <Translation Language="GB">&lt;value&gt;</Translation>
       </Text>
       <Text Id="__SingleUse_OVOH" Alignment="Left" TypographyId="Sensor_Label">
@@ -48,9 +93,9 @@
     </TextGroup>
   </Texts>
   <Typographies>
-    <Typography Id="Sensor_Label" Font="Michroma-Regular.ttf" Size="70" Bpp="2" Direction="LTR" WildcardCharacters="0-9." WildcardCharacterRanges="0-9,A-Z,a-z,0x20,0x24,0x2C,0x2A,0x25,0xB0" />
+    <Typography Id="Sensor_Label" Font="Michroma-Regular.ttf" Size="65" Bpp="2" Direction="LTR" WildcardCharacters="0-9." WildcardCharacterRanges="0-9,A-Z,a-z,0x20,0x24,0x2C,0x2A,0x25,0xB0" />
     <Typography Id="Sensor_Unit" Font="Michroma-Regular.ttf" Size="100" Bpp="2" Direction="LTR" WildcardCharacters="0-9." WildcardCharacterRanges="0-9,A-Z,a-z,0x20,0x24,0x2C,0x2A,0x25,0xB0" />
-    <Typography Id="Sensor_Values" Font="Michroma-Regular.ttf" Size="52" Bpp="2" Direction="RTL" WildcardCharacters="0-9." WildcardCharacterRanges="0-9,A-Z,a-z,0x20,0x24,0x2C,0x2A,0x25,0xB0" />
+    <Typography Id="Sensor_Values" Font="Michroma-Regular.ttf" Size="43" Bpp="2" Direction="RTL" WildcardCharacters="0-9." WildcardCharacterRanges="0-9,A-Z,a-z,0x20,0x24,0x2C,0x2A,0x25,0xB0" />
     <Typography Id="sensor_zn" Font="Michroma-Regular.ttf" Size="52" Bpp="4" Direction="LTR" FallbackCharacter="?" />
     <Typography Id="Paramtr_values" Font="Michroma-Regular.ttf" Size="32" Bpp="4" Direction="LTR" FallbackCharacter="?" />
   </Typographies>

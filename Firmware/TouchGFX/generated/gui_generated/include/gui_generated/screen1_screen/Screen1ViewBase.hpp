@@ -8,11 +8,13 @@
 #include <mvp/View.hpp>
 #include <gui/screen1_screen/Screen1Presenter.hpp>
 #include <touchgfx/widgets/Box.hpp>
+#include <touchgfx/widgets/Button.hpp>
 #include <touchgfx/widgets/Gauge.hpp>
 #include <touchgfx/widgets/canvas/PainterRGB565.hpp>
 #include <touchgfx/widgets/Image.hpp>
 #include <touchgfx/widgets/TextAreaWithWildcard.hpp>
-#include <touchgfx/widgets/Button.hpp>
+#include <touchgfx/containers/Container.hpp>
+#include <touchgfx/widgets/TextArea.hpp>
 
 class Screen1ViewBase : public touchgfx::View<Screen1Presenter>
 {
@@ -28,6 +30,14 @@ public:
     {
         // Override and implement this function in Screen1
     }
+    virtual void leftbutton()
+    {
+        // Override and implement this function in Screen1
+    }
+    virtual void rightbutton()
+    {
+        // Override and implement this function in Screen1
+    }
 
 protected:
     FrontendApplication& application() {
@@ -38,6 +48,7 @@ protected:
      * Member Declarations
      */
     touchgfx::Box __background;
+    touchgfx::Button left_button;
     touchgfx::Gauge gauge2;
     touchgfx::PainterRGB565 gauge2Painter;
     touchgfx::Gauge gauge1;
@@ -49,13 +60,39 @@ protected:
     touchgfx::Image indECT_blue;
     touchgfx::Image indECT;
     touchgfx::Image indFuel;
+    touchgfx::Image indServis;
     touchgfx::TextAreaWithOneWildcard speed;
     touchgfx::TextAreaWithOneWildcard value_3;
+    touchgfx::TextAreaWithOneWildcard value_9;
     touchgfx::TextAreaWithOneWildcard value_2;
-    touchgfx::TextAreaWithOneWildcard value_5;
     touchgfx::TextAreaWithOneWildcard value_1;
     touchgfx::TextAreaWithOneWildcard value_0;
     touchgfx::Button changeBacklight1;
+    touchgfx::Button right_button;
+    touchgfx::Container container2;
+    touchgfx::TextAreaWithOneWildcard value_5;
+    touchgfx::Image image7;
+    touchgfx::Container container3;
+    touchgfx::TextAreaWithOneWildcard value_7;
+    touchgfx::TextArea textArea2;
+    touchgfx::TextAreaWithOneWildcard value_8;
+    touchgfx::Image image9;
+    touchgfx::Image image8;
+    touchgfx::Container container4;
+    touchgfx::Gauge gauge4;
+    touchgfx::PainterRGB565 gauge4Painter;
+    touchgfx::TextAreaWithOneWildcard value_10;
+    touchgfx::Container container5;
+    touchgfx::Gauge gauge3;
+    touchgfx::PainterRGB565 gauge3Painter;
+    touchgfx::TextAreaWithOneWildcard value_11;
+    touchgfx::Container container6;
+    touchgfx::Gauge gauge5;
+    touchgfx::PainterRGB565 gauge5Painter;
+    touchgfx::TextAreaWithOneWildcard value_12;
+    touchgfx::Container container1;
+    touchgfx::Image image6;
+    touchgfx::TextAreaWithOneWildcard textArea1;
 
     /*
      * Wildcard Buffers
@@ -64,14 +101,28 @@ protected:
     touchgfx::Unicode::UnicodeChar speedBuffer[SPEED_SIZE];
     static const uint16_t VALUE_3_SIZE = 32;
     touchgfx::Unicode::UnicodeChar value_3Buffer[VALUE_3_SIZE];
+    static const uint16_t VALUE_9_SIZE = 32;
+    touchgfx::Unicode::UnicodeChar value_9Buffer[VALUE_9_SIZE];
     static const uint16_t VALUE_2_SIZE = 32;
     touchgfx::Unicode::UnicodeChar value_2Buffer[VALUE_2_SIZE];
-    static const uint16_t VALUE_5_SIZE = 32;
-    touchgfx::Unicode::UnicodeChar value_5Buffer[VALUE_5_SIZE];
     static const uint16_t VALUE_1_SIZE = 32;
     touchgfx::Unicode::UnicodeChar value_1Buffer[VALUE_1_SIZE];
     static const uint16_t VALUE_0_SIZE = 32;
     touchgfx::Unicode::UnicodeChar value_0Buffer[VALUE_0_SIZE];
+    static const uint16_t VALUE_5_SIZE = 32;
+    touchgfx::Unicode::UnicodeChar value_5Buffer[VALUE_5_SIZE];
+    static const uint16_t VALUE_7_SIZE = 32;
+    touchgfx::Unicode::UnicodeChar value_7Buffer[VALUE_7_SIZE];
+    static const uint16_t VALUE_8_SIZE = 32;
+    touchgfx::Unicode::UnicodeChar value_8Buffer[VALUE_8_SIZE];
+    static const uint16_t VALUE_10_SIZE = 32;
+    touchgfx::Unicode::UnicodeChar value_10Buffer[VALUE_10_SIZE];
+    static const uint16_t VALUE_11_SIZE = 32;
+    touchgfx::Unicode::UnicodeChar value_11Buffer[VALUE_11_SIZE];
+    static const uint16_t VALUE_12_SIZE = 32;
+    touchgfx::Unicode::UnicodeChar value_12Buffer[VALUE_12_SIZE];
+    static const uint16_t TEXTAREA1_SIZE = 64;
+    touchgfx::Unicode::UnicodeChar textArea1Buffer[TEXTAREA1_SIZE];
 
 private:
 

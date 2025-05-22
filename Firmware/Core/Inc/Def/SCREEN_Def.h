@@ -8,6 +8,7 @@
 #ifndef INC_DEF_SCREEN_DEF_H_
 #define INC_DEF_SCREEN_DEF_H_
 
+#pragma pack(push, 1)
 typedef enum {
 	LEFT = 0,
 	CENTER,
@@ -56,6 +57,8 @@ typedef enum {
 	CH_OILT
 } DataChannelEnum;
 
+
+
 typedef struct {
 	char Label[32];
 	int16_t X;
@@ -84,6 +87,6 @@ typedef struct {
 
 } SCREEN_Channel;
 
-
+#pragma pack(pop)
 
 #endif /* INC_DEF_SCREEN_DEF_H_ */

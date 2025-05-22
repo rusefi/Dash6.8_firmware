@@ -30,33 +30,42 @@
 #include "Globals.h"
 #include "extern.h"
 #include "sdram.h"
-#include "WS2812/WS2812.hpp"
+
 #include "nmea.h"
 #include "TargetTouch.h"
-//#include "spi_flash.h"
-//#include "mcu_flash.h"
-
-
-//Setup
 #include "Setup/Dash/setupDash.h"
 #include "Setup/Field/setupField.h"
 
+#include "eeprom24lc512.h"
+
+#include <math.h>
+#include "usart3_json_dma.h"
+#include "cJSON.h"
+
+#include"CAN.h"
+
+#include "json_dispatcher.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-#include <math.h>
 
-#define EXTRACT_U16(data, start_bit) ((uint16_t)(((data)[(start_bit) / 8] >> ((start_bit) % 8)) | ((data)[((start_bit) / 8) + 1] << (8 - ((start_bit) % 8)))))
+#define JSON_MSG_MAX_LEN 512
+#define JSON_QUEUE_SIZE  4
 
+#define RPM_THRESHOLD 500
+#define RPM_HYSTERESIS 10
+
+
+
+osMessageQueueId_t jsonQueue;
 nmea_t gps;
 
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-int rpmWindowSize = 10;     //  размер окна для RPM
-int fuelUserWindowSize = 5; //  размер окна для FUELUSER
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -84,6 +93,8 @@ TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim13;
 
 UART_HandleTypeDef huart3;
+DMA_HandleTypeDef hdma_usart3_rx;
+DMA_HandleTypeDef hdma_usart3_tx;
 
 SDRAM_HandleTypeDef hsdram1;
 
@@ -119,35 +130,35 @@ const osThreadAttr_t nmea_attributes = {
 osThreadId_t Ind_OILHandle;
 const osThreadAttr_t Ind_OIL_attributes = {
   .name = "Ind_OIL",
-  .stack_size = 64 * 4,
+  .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
 /* Definitions for Ind_FUEL */
 osThreadId_t Ind_FUELHandle;
 const osThreadAttr_t Ind_FUEL_attributes = {
   .name = "Ind_FUEL",
-  .stack_size = 64 * 4,
+  .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
 /* Definitions for Ind_BATT */
 osThreadId_t Ind_BATTHandle;
 const osThreadAttr_t Ind_BATT_attributes = {
   .name = "Ind_BATT",
-  .stack_size = 64 * 4,
+  .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
 /* Definitions for Ind_ECT */
 osThreadId_t Ind_ECTHandle;
 const osThreadAttr_t Ind_ECT_attributes = {
   .name = "Ind_ECT",
-  .stack_size = 64 * 4,
+  .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
 /* Definitions for other */
 osThreadId_t otherHandle;
 const osThreadAttr_t other_attributes = {
   .name = "other",
-  .stack_size = 64 * 4,
+  .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
 /* Definitions for RPM_10 */
@@ -164,10 +175,47 @@ const osThreadAttr_t FUELUSED_11_attributes = {
   .stack_size = 4096 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
+/* Definitions for UART_Task */
+osThreadId_t UART_TaskHandle;
+const osThreadAttr_t UART_Task_attributes = {
+  .name = "UART_Task",
+  .stack_size = 4096 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
+/* Definitions for MotohoursTask */
+osThreadId_t MotohoursTaskHandle;
+const osThreadAttr_t MotohoursTask_attributes = {
+  .name = "MotohoursTask",
+  .stack_size = 1024 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
+/* Definitions for Button_R_Task */
+osThreadId_t Button_R_TaskHandle;
+const osThreadAttr_t Button_R_Task_attributes = {
+  .name = "Button_R_Task",
+  .stack_size = 1024 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
+/* Definitions for Button_L_Task */
+osThreadId_t Button_L_TaskHandle;
+const osThreadAttr_t Button_L_Task_attributes = {
+  .name = "Button_L_Task",
+  .stack_size = 1024 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
+/* Definitions for JSON_Parse_Task */
+osThreadId_t JSON_Parse_TaskHandle;
+const osThreadAttr_t JSON_Parse_Task_attributes = {
+  .name = "JSON_Parse_Task",
+  .stack_size = 1024 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
 /* USER CODE BEGIN PV */
 FMC_SDRAM_CommandTypeDef command;
 
 Statuses Current_Status;
+FlagsUnion_t flags_union;
+Flags_t device_flags;
 
 CAN_TxHeaderTypeDef TxHeader;
 CAN_RxHeaderTypeDef RxHeader;
@@ -177,11 +225,17 @@ uint8_t RxData[8];
 uint8_t uartTransmitBufferSize;
 uint8_t uartTransmitBuffer[128];
 
+
+
+int rpmWindowSize = 10;     //  размер окна для RPM
+int windows[2] = {10, 30};   //  0 fuelFlow  1
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_LTDC_Init(void);
 static void MX_DMA2D_Init(void);
 static void MX_FMC_Init(void);
@@ -206,10 +260,20 @@ void Start_Ind_ECT(void *argument);
 void Start_other(void *argument);
 void Start_RMP_10(void *argument);
 void Start_FUELUSED_11(void *argument);
+void Start_UART_Task(void *argument);
+void Start_MotohoursTask(void *argument);
+void Start_R_Buttan_Task14(void *argument);
+void Start_Buttan_L_Task(void *argument);
+void Start_JSON_Parse_Task(void *argument);
 
 /* USER CODE BEGIN PFP */
-
+Flags_t can_k;
+EEPROM_Config_t eeprom_cfg;
+void HAL_UART_TxCpltCallback();
 void initAll(void);
+bool LoadFlagsFromEEPROM(void);
+void SaveFlagsToEEPROM(void);
+void InitFlags(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -247,6 +311,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_LTDC_Init();
   MX_DMA2D_Init();
   MX_FMC_Init();
@@ -264,11 +329,28 @@ int main(void)
   /* Call PreOsInit function */
   MX_TouchGFX_PreOSInit();
   /* USER CODE BEGIN 2 */
+  InitFlags();
 
+  EEPROM_Config_t eeprom_cfg = {
+          .hi2c = &hi2c3,
+          .hcrc = 0,
+          .i2c_address = 0x50 << 1,
+          .page_size = 128,
+          .write_timeout = 100,
+          .read_timeout = 50,
+          .motohours_main_addr = 0x0000,
+          .motohours_backup_addr = 0x0100,
+          .flags_main_addr = 0x0200,
+          .flags_backup_addr = 0x0300,
+          .array_main_addr = 0x0400,
+          .array_backup_addr = 0x0500
+      };
+  EEPROM_Init(&eeprom_cfg);
+//  LoadFlagsFromEEPROM();
   initAll();
 
 
-
+ // USART3_JSON_DMA_Init(115200);
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -287,6 +369,7 @@ int main(void)
   /* USER CODE END RTOS_TIMERS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
+  jsonQueue = osMessageQueueNew(JSON_QUEUE_SIZE, JSON_MSG_MAX_LEN, NULL);
 	/* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
 
@@ -322,10 +405,27 @@ int main(void)
   RPM_10Handle = osThreadNew(Start_RMP_10, &rpmWindowSize, &RPM_10_attributes);
 
   /* creation of FUELUSED_11 */
-  FUELUSED_11Handle = osThreadNew(Start_FUELUSED_11, &fuelUserWindowSize, &FUELUSED_11_attributes);
+  FUELUSED_11Handle = osThreadNew(Start_FUELUSED_11, &windows, &FUELUSED_11_attributes);
+
+  /* creation of UART_Task */
+  UART_TaskHandle = osThreadNew(Start_UART_Task, NULL, &UART_Task_attributes);
+
+  /* creation of MotohoursTask */
+  MotohoursTaskHandle = osThreadNew(Start_MotohoursTask, NULL, &MotohoursTask_attributes);
+
+  /* creation of Button_R_Task */
+  Button_R_TaskHandle = osThreadNew(Start_R_Buttan_Task14, NULL, &Button_R_Task_attributes);
+
+  /* creation of Button_L_Task */
+  Button_L_TaskHandle = osThreadNew(Start_Buttan_L_Task, NULL, &Button_L_Task_attributes);
+
+  /* creation of JSON_Parse_Task */
+  JSON_Parse_TaskHandle = osThreadNew(Start_JSON_Parse_Task, NULL, &JSON_Parse_Task_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
 	/* add threads, ... */
+
+
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
@@ -944,6 +1044,25 @@ static void MX_USART3_UART_Init(void)
 
 }
 
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Stream1_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
+  /* DMA1_Stream3_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream3_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream3_IRQn);
+
+}
+
 /* FMC initialization function */
 static void MX_FMC_Init(void)
 {
@@ -1149,287 +1268,174 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 
 
+char* build_status_json(void) {
+    cJSON *root = cJSON_CreateObject();
+    if (!root) return NULL;
+
+    cJSON_AddStringToObject(root, "type", "update");
+
+    cJSON *payload = cJSON_CreateObject();
+    if (!payload) {
+        cJSON_Delete(root);
+        return NULL;
+    }
+
+    // Добавляем поля из структуры, соответствующие вашему примеру JSON
+    cJSON_AddNumberToObject(payload, "rpm", Current_Status.RPM);
+    cJSON_AddNumberToObject(payload, "map", Current_Status.MAP);
+    cJSON_AddNumberToObject(payload, "tps", Current_Status.TPS1);
+    cJSON_AddNumberToObject(payload, "afr", Current_Status.AFR);
+    cJSON_AddNumberToObject(payload, "timing", Current_Status.IgnitionTiming);
+    cJSON_AddNumberToObject(payload, "injDuty", Current_Status.InjDuty);
+    cJSON_AddNumberToObject(payload, "vvt", Current_Status.VVTPos);
+    cJSON_AddNumberToObject(payload, "speed", Current_Status.VehicleSpeed);
+    cJSON_AddNumberToObject(payload, "clt", Current_Status.CoolantTemp);
+    cJSON_AddNumberToObject(payload, "iat", Current_Status.IntakeTemp);
+    cJSON_AddNumberToObject(payload, "oilTemp", Current_Status.OilTemperature);
+    cJSON_AddNumberToObject(payload, "oilPress", Current_Status.OilPress);
+    cJSON_AddNumberToObject(payload, "fuelPress", Current_Status.FuelFlow); // В структуре FuelFlow - можно заменить на FuelPress если есть
+    cJSON_AddNumberToObject(payload, "fuelLevel", Current_Status.FuelLevel);
+    cJSON_AddNumberToObject(payload, "fuelFlow", Current_Status.FuelFlow);
+    cJSON_AddNumberToObject(payload, "lambda", Current_Status.Lam1);
+    cJSON_AddNumberToObject(payload, "statusFlags", Current_Status.ENGINE_PROTECTION);
+    cJSON_AddNumberToObject(payload, "errorCode", Current_Status.LastError);
+    cJSON_AddNumberToObject(payload, "batteryVoltage", Current_Status.BattVolt);
+    cJSON_AddNumberToObject(payload, "knockLevel", Current_Status.KnockCt);
+
+    cJSON_AddItemToObject(root, "payload", payload);
+
+    char *json_str = cJSON_PrintUnformatted(root);
+    cJSON_Delete(root);
+    return json_str; // Освободить после использования через free()
+}
+
+
+void handle_json_message(const char* json_str) {
+    JsonMessage msg;
+    if (parse_and_dispatch_json(json_str, &msg)) {
+        switch (msg.type) {
+            case JSON_TYPE_UPDATE:
+                // обработка msg.payload.status
+                break;
+            case JSON_TYPE_FLAGS:
+                // обработка msg.payload.flags
+                break;
+            case JSON_TYPE_COMMAND:
+                // обработка msg.payload.command
+                break;
+            case JSON_TYPE_DATA:
+                // обработка msg.payload.data
+                break;
+            case JSON_TYPE_REQUEST:
+                // обработка msg.payload.request
+                break;
+            default:
+                // Неизвестный тип
+                break;
+        }
+    }
+}
+
+
+
+void InitFlags(void) {
+    flags_union.flags.CAN_ABIT = 0;
+    flags_union.flags.CAN_RUSEFI = 1;
+}
+
 // Глобальная функция обработки сообщений CAN
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
-  if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData) != HAL_OK) {
-    // Ошибка при получении сообщения CAN. Добавьте обработку ошибок.
-    return;
-  }
-
-  if (!Current_Status.CAN_ENABLED) {
-    return; // CAN не включен, выходим
-  }
-
-  HAL_GPIO_TogglePin(LED_CAN1_GPIO_Port, LED_CAN1_Pin);
-
-  // Маршрутизация сообщений на основе ID
-  switch (RxHeader.StdId) {
-    case 3221225472:
-      Handle_BO_3221225472(RxData);
-      break;
-    case 512:
-      Handle_BO_512(RxData);
-      break;
-    case 513:
-      Handle_BO_513(RxData);
-      break;
-    case 514:
-      Handle_BO_514(RxData);
-      break;
-    case 515:
-      Handle_BO_515(RxData);
-      break;
-    case 516:
-      Handle_BO_516(RxData);
-      break;
-    case 517:
-      Handle_BO_517(RxData);
-      break;
-    case 518:
-      Handle_BO_518(RxData);
-      break;
-    case 519:
-      Handle_BO_519(RxData);
-      break;
-    case 520:
-      Handle_BO_520(RxData);
-      break;
-    case 521:
-         Handle_BO_521(RxData);
-         break;
-    default:
-      // Обработка неизвестного ID CAN
-      break;
-  }
-}
-
-// Обработчики сообщений CAN
-
-void Handle_BO_3221225472(uint8_t *data) {
-  // SG_ AFR : 7|16@0+ (0.001,0) [0|0] "AFR"
-  uint16_t AFR_raw = EXTRACT_U16(data, 7);
-  Current_Status.AFR = AFR_raw * 0.001;
-
-  // SG_ VVTPos : 24|16@1- (0.02,0) [0|0] "deg"
-  uint16_t VVTPos_raw = EXTRACT_U16(data, 24);
-  Current_Status.VVTPos = (int16_t)VVTPos_raw * 0.02;
-
-  // SG_ NewSignal_0010 : 24|8@1+ (1,0) [0|0] ""
-  Current_Status.NewSignal_0010 = (data[3] >> 0) & 0xFF;
-
-  // SG_ NewSignal_0009 : 16|8@1+ (1,0) [0|0] ""
-  Current_Status.NewSignal_0009 = (data[2] >> 0) & 0xFF;
-
-    // SG_ NewSignal_0008 : 8|8@1+ (1,0) [0|0] ""
-  Current_Status.NewSignal_0008 = (data[1] >> 0) & 0xFF;
-
-    // SG_ NewSignal_0015 : 8|8@1+ (1,0) [0|0] ""
-  Current_Status.NewSignal_0015 = (data[1] >> 0) & 0xFF;
-
-    // SG_ NewSignal_0016 : 16|8@1+ (1,0) [0|0] ""
-  Current_Status.NewSignal_0016 = (data[2] >> 0) & 0xFF;
-
-   // SG_ NewSignal_0024 : 0|8@1+ (1,0) [0|0] ""
-  Current_Status.NewSignal_0024 = (data[0] >> 0) & 0xFF;
-}
-
-void Handle_BO_512(uint8_t *data) {
-  // SG_ WarningCounter : 0|16@1+ (1,0) [0|0] ""
-  Current_Status.WarningCounter = EXTRACT_U16(data, 0);
-
-  // SG_ LastError : 16|16@1+ (1,0) [0|0] ""
-  Current_Status.LastError = EXTRACT_U16(data, 16);
-
-  // SG_ RevLimAct : 32|1@1+ (1,0) [0|0] ""
-  Current_Status.RevLimAct = (data[4] >> 0) & 0x01;
-
-  // SG_ MainRelayAct : 33|1@1+ (1,0) [0|0] ""
-  Current_Status.MainRelayAct = (data[4] >> 1) & 0x01;
-
-  // SG_ FuelPumpAct : 34|1@1+ (1,0) [0|0] ""
-  Current_Status.FuelPumpAct = (data[4] >> 2) & 0x01;
-
-  // SG_ CELAct : 35|1@1+ (1,0) [0|0] ""
-  Current_Status.CELAct = (data[4] >> 3) & 0x01;
-
-  // SG_ EGOHeatAct : 36|1@1+ (1,0) [0|0] ""
-  Current_Status.EGOHeatAct = (data[4] >> 4) & 0x01;
-
-  // SG_ LambdaProtectAct : 37|1@1+ (1,0) [0|0] ""
-  Current_Status.LambdaProtectAct = (data[4] >> 5) & 0x01;
-
-  // SG_ Fan : 38|1@1+ (1,0) [0|0] ""
-  Current_Status.Fan = (data[4] >> 6) & 0x01;
-
-  // SG_ Fan2 : 39|1@1+ (1,0) [0|0] ""
-  Current_Status.Fan2 = (data[4] >> 7) & 0x01;
-
-  // SG_ CurrentGear : 40|8@1+ (1,0) [0|0] ""
-  Current_Status.CurrentGear = (data[5] >> 0) & 0xFF;
-
-  // SG_ DistanceTraveled : 48|16@1+ (0.1,0) [0|6553.5] "km"
-  uint16_t DistanceTraveled_raw = EXTRACT_U16(data, 48);
-  Current_Status.DistanceTraveled = DistanceTraveled_raw * 0.1;
-}
-
-void Handle_BO_513(uint8_t *data) {
-  // SG_ RPM : 0|16@1+ (1,0) [0|0] "RPM"
-  Current_Status.RPM = EXTRACT_U16(data, 0);
-
-  // SG_ IgnitionTiming : 16|16@1- (0.02,0) [0|0] "deg"
-  uint16_t IgnitionTiming_raw = EXTRACT_U16(data, 16);
-  Current_Status.IgnitionTiming = (int16_t)IgnitionTiming_raw * 0.02;
-
-  // SG_ InjDuty : 32|8@1+ (0.5,0) [0|100] "%"
-  Current_Status.InjDuty = ((data[4] >> 0) & 0xFF) * 0.5;
-
-  // SG_ IgnDuty : 40|8@1+ (0.5,0) [0|100] "%"
-  Current_Status.IgnDuty = ((data[5] >> 0) & 0xFF) * 0.5;
-
-  // SG_ VehicleSpeed : 48|8@1+ (1,0) [0|255] "kph"
-  Current_Status.VehicleSpeed = (data[6] >> 0) & 0xFF;
-
-  // SG_ FlexPct : 56|8@1+ (1,0) [0|100] "%"
-  Current_Status.FlexPct = (data[7] >> 0) & 0xFF;
-}
-
-void Handle_BO_514(uint8_t *data) {
-  // SG_ PPS : 0|16@1- (0.01,0) [0|100] "%"
-  uint16_t PPS_raw = EXTRACT_U16(data, 0);
-  Current_Status.PPS = (int16_t)PPS_raw * 0.01;
-
-  // SG_ TPS1 : 16|16@1- (0.01,0) [0|100] "%"
-  uint16_t TPS1_raw = EXTRACT_U16(data, 16);
-  Current_Status.TPS1 = (int16_t)TPS1_raw * 0.01;
-
-  // SG_ TPS2 : 32|16@1- (0.01,0) [0|100] "%"
-  uint16_t TPS2_raw = EXTRACT_U16(data, 32);
-  Current_Status.TPS2 = (int16_t)TPS2_raw * 0.01;
-
-  // SG_ Wastegate : 48|16@1- (0.01,0) [0|100] "%"
-  uint16_t Wastegate_raw = EXTRACT_U16(data, 48);
-  Current_Status.Wastegate = (int16_t)Wastegate_raw * 0.01;
-}
-
-void Handle_BO_515(uint8_t *data) {
-  // SG_ MAP : 0|16@1+ (0.03333333,0) [0|0] "kPa"
-  uint16_t MAP_raw = EXTRACT_U16(data, 0);
-  Current_Status.MAP = MAP_raw * 0.03333333;
-
-  // SG_ CoolantTemp : 16|8@1+ (1,-40) [-40|200] "deg C"
-  Current_Status.CoolantTemp = ((data[2] >> 0) & 0xFF) * 1 - 40;
-
-  // SG_ IntakeTemp : 24|8@1+ (1,-40) [-40|200] "deg C"
-  Current_Status.IntakeTemp = ((data[3] >> 0) & 0xFF) * 1 - 40;
-
-  // SG_ AUX1Temp : 32|8@1+ (1,-40) [-40|200] "deg C"
-  Current_Status.AUX1Temp = ((data[4] >> 0) & 0xFF) * 1 - 40;
-
-  // SG_ AUX2Temp : 40|8@1+ (1,-40) [-40|200] "deg C"
-  Current_Status.AUX2Temp = ((data[5] >> 0) & 0xFF) * 1 - 40;
-
-  // SG_ MCUTemp : 48|8@1+ (1,-40) [-40|100] "deg C"
-  Current_Status.MCUTemp = ((data[6] >> 0) & 0xFF) * 1 - 40;
-
-  // SG_ FuelLevel : 56|8@1+ (0.5,0) [0|0] "%"
-  Current_Status.FuelLevel = ((data[7] >> 0) & 0xFF) * 0.5;
-}
-
-void Handle_BO_516(uint8_t *data) {
-  // SG_ OilPress : 16|16@1+ (0.03333333,0) [0|0] "kPa"
-  uint16_t OilPress_raw = EXTRACT_U16(data, 16);
-  Current_Status.OilPress = OilPress_raw * 0.03333333;
-
-  // SG_ OilTemperature : 32|8@1+ (1,-40) [-40|215] "deg C"
-  Current_Status.OilTemperature = ((data[4] >> 0) & 0xFF) * 1 - 40;
-
-  // SG_ FuelTemperature : 40|8@1+ (1,-40) [-40|215] "deg C"
-  Current_Status.FuelTemperature = ((data[5] >> 0) & 0xFF) * 1 - 40;
-
-  // SG_ BattVolt : 48|16@1+ (0.001,0) [0|25] "mV"
-  uint16_t BattVolt_raw = EXTRACT_U16(data, 48);
-  Current_Status.BattVolt = BattVolt_raw * 0.001;
-}
-
-void Handle_BO_517(uint8_t *data) {
-  // SG_ CylAM : 0|16@1+ (1,0) [0|0] "mg"
-  Current_Status.CylAM = EXTRACT_U16(data, 0);
-
-  // SG_ EstMAF : 16|16@1+ (0.01,0) [0|0] "kg/h"
-  Current_Status.EstMAF = EXTRACT_U16(data, 16) * 0.01;
-
-  // SG_ InjPW : 32|16@1+ (0.003333333,0) [0|0] "ms"
-  Current_Status.InjPW = EXTRACT_U16(data, 32) * 0.003333333;
-
-  // SG_ KnockCt : 48|16@1+ (1,0) [0|0] "count"
-  Current_Status.KnockCt = EXTRACT_U16(data, 48);
-}
-
-void Handle_BO_518(uint8_t *data) {
-  // SG_ FuelUsed : 0|16@1+ (1,0) [0|0] "g"
-  Current_Status.FuelUsed = EXTRACT_U16(data, 0);
-
-  // SG_ FuelFlow : 16|16@1+ (0.005,0) [0|327] "g/s"
-  Current_Status.FuelFlow = EXTRACT_U16(data, 16) * 0.005;
-
-  // SG_ FuelTrim1 : 32|16@1+ (0.01,0) [-50|50] "%"
-  Current_Status.FuelTrim1 = EXTRACT_U16(data, 32) * 0.01;
-
-  // SG_ FuelTrim2 : 48|16@1+ (0.01,0) [-50|50] "%"
-  Current_Status.FuelTrim2 = EXTRACT_U16(data, 48) * 0.01;
-}
-
-void Handle_BO_519(uint8_t *data) {
-  // SG_ Lam1 : 0|16@1+ (0.0001,0) [0|2] "lambda"
-  Current_Status.Lam1 = EXTRACT_U16(data, 0) * 0.0001;
-
-  // SG_ Lam2 : 16|16@1+ (0.0001,0) [0|2] "lambda"
-  Current_Status.Lam2 = EXTRACT_U16(data, 16) * 0.0001;
-
-  // SG_ FpLow : 32|16@1+ (0.03333333,0) [0|0] "kPa"
-  Current_Status.FpLow = EXTRACT_U16(data, 32) * 0.03333333;
-
-  // SG_ FpHigh : 48|16@1+ (0.1,0) [0|0] "bar"
-  Current_Status.FpHigh = EXTRACT_U16(data, 48) * 0.1;
-}
-
-void Handle_BO_520(uint8_t *data) {
-    // SG_Cam1I : 0|8@1- (1,0) [-100|100] "deg"
-    Current_Status.Cam1I = (int8_t)(data[0]);
-
-    // SG_Cam1Itar : 8|8@1- (1,0) [-100|100] "deg"
-    Current_Status.Cam1Itar = (int8_t)(data[1]);
-
-    // SG_Cam1E : 16|8@1- (1,0) [-100|100] "deg"
-    Current_Status.Cam1E = (int8_t)(data[2]);
-
-    // SG_Cam1Etar : 24|8@1- (1,0) [-100|100] "deg"
-    Current_Status.Cam1Etar = (int8_t)(data[3]);
-
-    // SG_Cam2I : 32|8@1- (1,0) [-100|100] "deg"
-    Current_Status.Cam2I = (int8_t)(data[4]);
-
-    // SG_Cam2Itar : 40|8@1- (1,0) [-100|100] "deg"
-    Current_Status.Cam2Itar = (int8_t)(data[5]);
-
-    // SG_Cam2E : 48|8@1- (1,0) [-100|100] "deg"
-    Current_Status.Cam2E = (int8_t)(data[6]);
-
-    // SG_Cam2Etar : 56|8@1- (1,0) [-100|100] "deg"
-    Current_Status.Cam2Etar = (int8_t)(data[7]);
-}
-    void Handle_BO_521(uint8_t *data) {
-        // SG_Cam1I : 0|8@1- (1,0) [-100|100] "deg"
-     Current_Status.WarningCounterv = (int16_t)(data[0]);
-
-        // SG_Cam1Itar : 8|8@1- (1,0) [-100|100] "deg"
-     Current_Status.LastErrorv = (int16_t)(data[1]);
-
-        // SG_Cam1E : 16|8@1- (1,0) [-100|100] "deg"
-     Current_Status.NextOBD2Error = (int16_t)(data[2]);
+    if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData) != HAL_OK) {
+        // Ошибка при получении сообщения CAN
+        return;
+    }
+
+    // Если CAN не включен, выходим (если нужно)
+    // if (!Current_Status.CAN_ENABLED) return;
+
+    // --- Переключение между протоколами ---
+    if (flags_union.flags.CAN_RUSEFI && !flags_union.flags.CAN_ABIT) {
+        // --- rusefi протокол ---
+        switch (RxHeader.StdId) {
+            case 3221225472: Handle_BO_3221225472(RxData); break;
+            case 512: Handle_BO_512(RxData); break;
+            case 513: Handle_BO_513(RxData); break;
+            case 514: Handle_BO_514(RxData); break;
+            case 515: Handle_BO_515(RxData); break;
+            case 516: Handle_BO_516(RxData); break;
+            case 517: Handle_BO_517(RxData); break;
+            case 518: Handle_BO_518(RxData); break;
+            case 519: Handle_BO_519(RxData); break;
+            case 520: Handle_BO_520(RxData); break;
+            case 521: Handle_BO_521(RxData); break;
+            default:
+                // Обработка неизвестного ID CAN для rusefi
+                break;
+        }
+    } else if (!flags_union.flags.CAN_RUSEFI && flags_union.flags.CAN_ABIT) {
+        // --- ABIT протокол ---
+        switch (RxHeader.StdId) {
+            case 0x281: Handle_BO_0x281(RxData); break;
+            case 0x282: Handle_BO_0x282(RxData); break;
+            case 0x283: Handle_BO_0x283(RxData); break;
+            case 0x284: Handle_BO_0x284(RxData); break;
+            case 0x381: Handle_BO_0x381(RxData); break;
+            case 0x382: Handle_BO_0x382(RxData); break;
+            case 0x383: Handle_BO_0x383(RxData); break;
+            case 0x481: Handle_BO_0x481(RxData); break;
+            case 0x482: Handle_BO_0x482(RxData); break;
+            case 0x581: Handle_BO_0x581(RxData); break;
+            case 0x582: Handle_BO_0x582(RxData); break;
+            case 0x583: Handle_BO_0x583(RxData); break;
+            case 0x584: Handle_BO_0x584(RxData); break;
+            case 0x781: Handle_BO_0x781(RxData); break;
+//            case 0x211: Handle_BO_0x211(RxData); break;
+//            case 0x212: Handle_BO_0x212(RxData); break;
+//            case 0x511: Handle_BO_0x511(RxData); break;
+//            case 0x512: Handle_BO_0x512(RxData); break;
+//            case 0x385: Handle_BO_0x385(RxData); break;
+//            case 0x784: Handle_BO_0x784(RxData); break;
+            default:
+                // Обработка неизвестного ID CAN для ABIT
+                break;
+        }
+    } else {
+        // Некорректная конфигурация протоколов (оба флага или ни одного)
+        // Можно добавить логирование или аварийную индикацию
+    }
+
+    // --- Обработка ошибок ---
+
+ /*   if (Current_Status.LastError != 0) {
+        Current_Status.IND_DTC = true;
+        Current_Status.Error_Mes = Error_code(Current_Status.LastError);
+        Current_Status.container1 = true;
+    } else {
+        Current_Status.container1 = false;
+        Current_Status.IND_DTC = false;
+    }*/
 }
 
 
+
+
+
+
+
+ // оброботчик прерываний прием передача USART3
+
+    void json_rx_callback(const char* json_str)
+    {
+        // Кладём принятый JSON в очередь (копируем, чтобы не потерять данные)
+        if (json_str && jsonQueue) {
+            osMessageQueuePut(jsonQueue, json_str, 0, 0);
+        }
+    }
+
+
+    void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
+        USART3_JSON_TxCpltCallback(huart);
+    }
 
 void initAll(void) {
 
@@ -1441,10 +1447,24 @@ void initAll(void) {
 
 	HAL_TIM_PWM_Start(&htim13, TIM_CHANNEL_1);
 
+//	LoadFlagsFromEEPROM();
 
+}
+//  сохронение флагов в епром
+void SaveFlagsToEEPROM(void) {
+    flags_union.flags = device_flags; // Копируем структуру в union
+    EEPROM_WriteFlags(flags_union.raw);
 
 }
 
+// чтение флагов в епром
+	bool LoadFlagsFromEEPROM(void) {
+	    if (EEPROM_ReadDual(eeprom_cfg.flags_main_addr, eeprom_cfg.flags_backup_addr, &flags_union.raw, sizeof(flags_union.raw))) {
+	        device_flags = flags_union.flags; // Копируем обратно в структуру
+	        return true;
+	    }
+	    return false;
+	}
 
 // Среднее скользящее
 
@@ -1489,7 +1509,7 @@ float updateMovingAverage(MovingAverage *ma, float newValue) {
     return sum / ma->count; // Возврат SMA
 }
 
-// округление до краного
+// округление до кратного
 
 int roundToNearest(int value, int multiple) {
     // Находим остаток от деления на кратное значение
@@ -1789,19 +1809,199 @@ void Start_RMP_10(void *argument)
 void Start_FUELUSED_11(void *argument)
 {
   /* USER CODE BEGIN Start_FUELUSED_11 */
-	 int windowSize = *((int *)argument); // Получаем размер окна из параметров
-	 MovingAverage fuelUserMA;
-	 initMovingAverage(&fuelUserMA, windowSize);
+	int *windows = (int *)argument;
+	int fuelWindow = windows[0];
+	int remainsWindow = windows[1];
+
+	MovingAverage fuelUserMA, remainsMA;
+	initMovingAverage(&fuelUserMA, fuelWindow);    // Для FuelUsed
+	initMovingAverage(&remainsMA, remainsWindow);  // Для RemainsKm
+
   /* Infinite loop */
   for(;;)
   {
-	  float rpmValue = Current_Status.FuelFlow; // Получение текущего значения RPM
-	  Current_Status.FUELUSEDs = updateMovingAverage(&fuelUserMA, rpmValue);
+	  // Получаем актуальные значения!
+	          float fuel_left_liters = Current_Status.FuelLevel;   // Остаток топлива, литров
+	          float avg_consumption_lph = Current_Status.FUELUSEDs; // Средний расход, л/ч
+	          float speed_kmh = Current_Status.GPS_SPEED;          // Скорость, км/ч
+//	          float remains_km1 = 0 ;
+	          // Обновление FuelUsed
+	                  float fuelValue = Current_Status.FuelFlow;
+	                  Current_Status.FUELUSEDs = updateMovingAverage(&fuelUserMA, fuelValue) + 0.0001f;
 
-    osDelay(100);
-  }
-  freeMovingAverage(&fuelUserMA); // Освобождение памяти при завершении задачи (если вы используете динамическое выделение)
+	                  // --- Защита от деления на ноль и некорректных значений ---
+	                  float raw_remains = 0.0f;
+	                  if (avg_consumption_lph > 0.01f && speed_kmh > 0.1f && fuel_left_liters > 0.01f) {
+	                      raw_remains = (fuel_left_liters * speed_kmh) / avg_consumption_lph;
+	                  } else {
+	                      raw_remains = 0.0f; // если расход или скорость слишком малы, запас хода не считаем
+	                  }
+	                  Current_Status.remains_km = updateMovingAverage(&remainsMA, raw_remains);
+
+	                  // Для отображения целого значения (например, на дисплее)
+//	                  Current_Status.remains_km_int = (int)(Current_Status.remains_km + 0.5f);
+
+	                  osDelay(100);
+	              }
+
+	              freeMovingAverage(&fuelUserMA);
+	              freeMovingAverage(&remainsMA);
+
   /* USER CODE END Start_FUELUSED_11 */
+}
+
+/* USER CODE BEGIN Header_Start_UART_Task */
+/**
+* @brief Function implementing the UART_Task thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_Start_UART_Task */
+void Start_UART_Task(void *argument)
+{
+  /* USER CODE BEGIN Start_UART_Task */
+
+  /* Infinite loop */
+  for(;;){
+	  // Формируем JSON-строку (build_status_json должен возвращать malloc-строку!)
+	  char* json_str = build_status_json();
+	  if (json_str)
+	  {
+	      // Ждём, пока UART не освободится (максимум 100 попыток по 1 мс)
+	      uint32_t try_cnt = 0;
+	      while (USART3_JSON_IsTxBusy())
+	      {
+	          osDelay(1);
+	          if (++try_cnt > 100)
+	          {
+	              // UART завис? Освобождаем память и выходим из цикла
+	              free(json_str);
+	              json_str = NULL;
+	              break;
+	          }
+	      }
+	      if (json_str)
+	      {
+	          if (USART3_JSON_Send(json_str) == HAL_OK)
+	          {
+	              // Можно добавить логирование успеха
+	          }
+	          else
+	          {
+	              // Ошибка отправки, можно залогировать
+	          }
+	          free(json_str);
+	      }
+	  }
+
+	        osDelay(200); // Пауза между отправками (200 мс)
+	    }
+  /* USER CODE END Start_UART_Task */
+}
+
+/* USER CODE BEGIN Header_Start_MotohoursTask */
+/**
+* @brief Function implementing the MotohoursTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_Start_MotohoursTask */
+void Start_MotohoursTask(void *argument)
+{
+  /* USER CODE BEGIN Start_MotohoursTask */
+	 osDelay(100);
+	    if (!EEPROM_ReadMotohours(&Current_Status.MOTOHOURS)) {
+	        Current_Status.MOTOHOURS = 0;
+	    }
+	    uint32_t last_saved = Current_Status.MOTOHOURS;
+	    const uint32_t SAVE_INTERVAL = 240; // сохранять раз в минуту
+  /* Infinite loop */
+  for(;;)
+  {
+	  osDelay(1000); // 1 секунда
+	  Current_Status.MOTOHOURS++;
+	  // Сохраняем только если прошло SAVE_INTERVAL секунд
+	          if ((Current_Status.MOTOHOURS - last_saved) >= SAVE_INTERVAL) {
+	              if (EEPROM_WriteMotohours(Current_Status.MOTOHOURS) == HAL_OK) {
+	                  eeprom_wait_ready(); // обязательно дождаться окончания записи!
+	                  last_saved = Current_Status.MOTOHOURS;
+	              }
+	          }
+  }
+  /* USER CODE END Start_MotohoursTask */
+}
+
+/* USER CODE BEGIN Header_Start_R_Buttan_Task14 */
+/**
+* @brief Function implementing the Button_R_Task thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_Start_R_Buttan_Task14 */
+void Start_R_Buttan_Task14(void *argument)
+{
+  /* USER CODE BEGIN Start_R_Buttan_Task14 */
+  for(;;)
+  {
+    // Более безопасная проверка с использованием else-if
+	  if(Current_Status.RPM < (RPM_THRESHOLD - RPM_HYSTERESIS))
+    {
+        Current_Status.container4 = false;
+        Current_Status.container6 = true;
+    }
+    else if(Current_Status.RPM > (RPM_THRESHOLD + RPM_HYSTERESIS))// RPM >= 500
+    {
+    	osDelay(5000);
+        Current_Status.container4 = true;
+        Current_Status.container6 = false;
+    }
+
+    // Уменьшаем задержку для более отзывчивой системы
+    osDelay(1); // 100 мс вместо 5 сек
+  }
+  /* USER CODE END Start_R_Buttan_Task14 */
+}
+
+/* USER CODE BEGIN Header_Start_Buttan_L_Task */
+/**
+* @brief Function implementing the Button_L_Task thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_Start_Buttan_L_Task */
+void Start_Buttan_L_Task(void *argument)
+{
+  /* USER CODE BEGIN Start_Buttan_L_Task */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END Start_Buttan_L_Task */
+}
+
+/* USER CODE BEGIN Header_Start_JSON_Parse_Task */
+/**
+* @brief Function implementing the JSON_Parse_Task thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_Start_JSON_Parse_Task */
+void Start_JSON_Parse_Task(void *argument)
+{
+  /* USER CODE BEGIN Start_JSON_Parse_Task */
+	char json_buf[JSON_MSG_MAX_LEN];
+  /* Infinite loop */
+  for(;;)
+  {
+	  // Ждём новое сообщение в очереди (osWaitForever - блокирует, пока не придёт)
+	          if (osMessageQueueGet(jsonQueue, json_buf, NULL, osWaitForever) == osOK)
+	          {
+	              handle_json_message(json_buf);
+	          }
+    osDelay(1);
+  }
+  /* USER CODE END Start_JSON_Parse_Task */
 }
 
 /**

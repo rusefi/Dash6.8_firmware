@@ -8,17 +8,28 @@
 
 const uint16_t BITMAP_BATTERYBLOCK_ID = 0;
 const uint16_t BITMAP_CHEK_ID = 1;
-const uint16_t BITMAP_FRAME_69_ID = 2;
-const uint16_t BITMAP_FUEL_ID = 3;
-const uint16_t BITMAP_FUIL_ID = 4;
-const uint16_t BITMAP_FUIL_LLOV_ID = 5;
-const uint16_t BITMAP_OIL_ID = 6;
-const uint16_t BITMAP_RESHOT_ICON_LIGHT_MAX_SKL25EYVD9_1_ID = 7;
-const uint16_t BITMAP_TEMP_ID = 8;
-const uint16_t BITMAP_VECTOR_8_ID = 9;
-const uint16_t BITMAP_WATER_TEMP_ID = 10;
-const uint16_t BITMAP_WATER_TEMP_BLUE_ID = 11;
-const uint16_t BITMAP_WATER_TEMP_RED_ID = 12;
+const uint16_t BITMAP_FRAME_66_ID = 2;
+const uint16_t BITMAP_FRAME_69_ID = 3;
+const uint16_t BITMAP_FUEL_ID = 4;
+const uint16_t BITMAP_FUIL_ID = 5;
+const uint16_t BITMAP_FUIL_LLOV_ID = 6;
+const uint16_t BITMAP_GROUP_38_ID = 7;
+const uint16_t BITMAP_GROUP_39_ID = 8;
+const uint16_t BITMAP_GROUP_42_ID = 9;
+const uint16_t BITMAP_H_ID = 10;
+const uint16_t BITMAP_LH_ID = 11;
+const uint16_t BITMAP_NEEDL_OIL_ID = 12;
+const uint16_t BITMAP_OIL_ID = 13;
+const uint16_t BITMAP_RECORD_CIRCLE_ID = 14;
+const uint16_t BITMAP_RESHOT_ICON_LIGHT_MAX_SKL25EYVD9_1_ID = 15;
+const uint16_t BITMAP_SERV_ID = 16;
+const uint16_t BITMAP_TEMP_ID = 17;
+const uint16_t BITMAP_V_ID = 18;
+const uint16_t BITMAP_VECTOR_ID = 19;
+const uint16_t BITMAP_VECTOR_8_ID = 20;
+const uint16_t BITMAP_WATER_TEMP_ID = 21;
+const uint16_t BITMAP_WATER_TEMP_BLUE_ID = 22;
+const uint16_t BITMAP_WATER_TEMP_RED_ID = 23;
 
 namespace BitmapDatabase
 {

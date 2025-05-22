@@ -5,6 +5,10 @@
 extern "C" {
 #endif
 
+//----------------------
+// Подключение заголовков
+//----------------------
+#include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <Def/CAN_Def.h>
@@ -13,192 +17,326 @@ extern "C" {
 #include <Def/STORAGE_Def.h>
 #include <Def/SCREEN_Def.h>
 
-#define CAN_SETUP_ID			0x580
+//----------------------
+// Константы CAN и яркости
+//----------------------
+#define CAN_SETUP_ID                0x580
 
-#define LED_DEFAULT_BRIGHTNESS	50
-#define LCD_DEFAULT_BRIGHTNESS	800
+#define LED_DEFAULT_BRIGHTNESS      50
+#define LCD_DEFAULT_BRIGHTNESS      1000
 
-#define PROTECTION_RPM_LOW 		6500
-#define PROTECTION_RPM_HIGH 	8000
-#define PROTECTION_RPM_LED 		6
+//----------------------
+// Пороговые значения защиты
+//----------------------
+#define PROTECTION_RPM_LOW          6500
+#define PROTECTION_RPM_HIGH         8000
+#define PROTECTION_RPM_LED          6
 
-#define PROTECTION_OIL_LOW 		40
-#define PROTECTION_FUEL_LOW 	40
+#define PROTECTION_OIL_LOW          40
+#define PROTECTION_FUEL_LOW         40
 
-#define PSI_TO_BAR 				0.0689476f
-#define PSI_TO_KPA 				6.89476f
-#define BAR_TO_PSI 				14.5038f
-#define BAR_TO_KPA 				100.0f
-#define KPA_TO_BAR 				0.01f
-#define KPA_TO_PSI 				0.145038f
+//----------------------
+// Коэффициенты преобразования давления и AFR
+//----------------------
+#define PSI_TO_BAR                  0.0689476f
+#define PSI_TO_KPA                  6.89476f
+#define BAR_TO_PSI                  14.5038f
+#define BAR_TO_KPA                  100.0f
+#define KPA_TO_BAR                  0.01f
+#define KPA_TO_PSI                  0.145038f
 
-#define AFR_TO_LAMBDA 			0.06802721088f
+#define AFR_TO_LAMBDA               0.06802721088f
 
+//----------------------
+// Разрешение экрана (выберите нужное)
+//----------------------
 #define USE_1024x600
-//#define USE_800x480
+#define USE_800x480
 
 #ifdef USE_1024x600
-	#define LCD_RES_X  1024
-	#define LCD_RES_Y  600
+    #define LCD_RES_X               1280
+    #define LCD_RES_Y               480
 #else
-	#define LCD_RES_X  800
-	#define LCD_RES_Y  480
+    #define LCD_RES_X               800
+    #define LCD_RES_Y               480
 #endif
 
+//----------------------
+// Перечисление типов CAN
+//----------------------
 typedef enum {
-	CAN_LINK = 0,
-	CAN_AIM,
-	CAN_MX5,
-	CAN_BMW_PHEV
+    CAN_LINK = 0,
+    CAN_AIM,
+    CAN_MX5,
+    CAN_BMW_PHEV
+    // ... добавьте остальные типы
 } CANDefEnum;
 
+//----------------------
+// Структура RGB-светодиода
+//----------------------
+typedef struct {
+    uint8_t enabled;   // Включен ли светодиод
+    int     color;     // Цвет (код)
+} RGBLED_t;
 
-struct RGBLED {
-	uint8_t enabled;
-	int color;
-};
+//----------------------
+// Флаги состояния (битовые поля)
+//----------------------
+typedef struct {
+    uint32_t motor_overheat     : 1;  // Перегрев двигателя
+    uint32_t low_battery        : 1;  // Низкий заряд батареи
+    uint32_t sensor_error       : 1;  // Ошибка датчика
+    uint32_t communication_lost : 1;  // Потеря связи
+    uint32_t CAN_RUSEFI         : 1;  // CAN rusefi активен
+    uint32_t CAN_ABIT           : 1;  // CAN abit активен
+    uint32_t FUEL_CAN           : 1;  // CAN топливной системы
+    uint32_t FUEL_ADC           : 1;  // ADC топливной системы
+    // ... остальные флаги ...
+    uint32_t reserved           : 24; // Зарезервировано
+} Flags_t;
 
+// Унион для доступа к флагам как к uint32_t
+typedef union {
+    Flags_t   flags;
+    uint32_t  raw;
+} FlagsUnion_t;
+
+//----------------------
+// Структура команды
+//----------------------
+typedef struct {
+    uint8_t  command_id;                // Идентификатор команды
+    uint8_t  params[16];                // Параметры команды
+    uint8_t  params_length;             // Длина параметров
+} Command_t;
+
+//----------------------
+// Структура данных
+//----------------------
+typedef struct {
+    uint8_t   data_buffer[64];          // Буфер данных
+    uint16_t  data_length;              // Длина данных
+} Data_t;
+
+//----------------------
+// Структура запроса
+//----------------------
+typedef struct {
+    uint8_t  request_type;              // Тип запроса
+    uint8_t  request_params[16];        // Параметры запроса
+    uint8_t  params_length;             // Длина параметров
+} Request_t;
+
+//----------------------
+// Основная структура статусов системы
+//----------------------
 typedef struct {
 
-	// BO_3221225472 VECTOR__INDEPENDENT_SIG_MSG
-	  float AFR;                 // SG_ AFR : 7|16@0+ (0.001,0) [0|0] "AFR"
-	  float VVTPos;              // SG_ VVTPos : 24|16@1- (0.02,0) [0|0] "deg"
-	  uint8_t NewSignal_0010;    // SG_NewSignal_0010 : 24|8@1+ (1,0) [0|0] ""
-	  uint8_t NewSignal_0009;    // SG_NewSignal_0009 : 16|8@1+ (1,0) [0|0] ""
-	  uint8_t NewSignal_0008;    // SG_NewSignal_0008 : 8|8@1+ (1,0) [0|0] ""
-	  uint8_t NewSignal_0015;    // SG_NewSignal_0015 : 8|8@1+ (1,0) [0|0] ""
-	  uint8_t NewSignal_0016;    // SG_NewSignal_0016 : 16|8@1+ (1,0) [0|0] ""
-	  uint8_t NewSignal_0024;    // SG_NewSignal_0024 : 0|8@1+ (1,0) [0|0] ""
+    // --- CAN сообщения ---
 
-	  // BO_512 BASE0
-	  uint16_t WarningCounter;   // SG_ WarningCounter : 0|16@1+ (1,0) [0|0] ""
-	  uint16_t LastError;        // SG_ LastError : 16|16@1+ (1,0) [0|0] ""
-	  uint8_t RevLimAct;         // SG_ RevLimAct : 32|1@1+ (1,0) [0|0] ""
-	  uint8_t MainRelayAct;      // SG_ MainRelayAct : 33|1@1+ (1,0) [0|0] ""
-	  uint8_t FuelPumpAct;       // SG_ FuelPumpAct : 34|1@1+ (1,0) [0|0] ""
-	  uint8_t CELAct;            // SG_ CELAct : 35|1@1+ (1,0) [0|0] ""
-	  uint8_t EGOHeatAct;        // SG_ EGOHeatAct : 36|1@1+ (1,0) [0|0] ""
-	  uint8_t LambdaProtectAct;  // SG_ LambdaProtectAct : 37|1@1+ (1,0) [0|0] ""
-	  uint8_t Fan;               // SG_ Fan : 38|1@1+ (1,0) [0|0] ""
-	  uint8_t Fan2;              // SG_ Fan2 : 39|1@1+ (1,0) [0|0] ""
-	  uint8_t CurrentGear;       // SG_ CurrentGear : 40|8@1+ (1,0) [0|0] ""
-	  float DistanceTraveled;    // SG_ DistanceTraveled : 48|16@1+ (0.1,0) [0|6553.5] "km"
+    // BO_3221225472 VECTOR__INDEPENDENT_SIG_MSG
+    float     AFR;                      // Коэффициент избытка воздуха
+    float     VVTPos;                   // Положение фазовращателя, градусы
+    uint8_t   NewSignal_0010;
+    uint8_t   NewSignal_0009;
+    uint8_t   NewSignal_0008;
+    uint8_t   NewSignal_0015;
+    uint8_t   NewSignal_0016;
+    uint8_t   NewSignal_0024;
 
-	  // BO_513 BASE1
-	  uint16_t RPM;              // SG_ RPM : 0|16@1+ (1,0) [0|0] "RPM"
-	  uint16_t RPMs;
-	  float IgnitionTiming;      // SG_ IgnitionTiming : 16|16@1- (0.02,0) [0|0] "deg"
-	  float InjDuty;             // SG_ InjDuty : 32|8@1+ (0.5,0) [0|100] "%"
-	  float IgnDuty;             // SG_ IgnDuty : 40|8@1+ (0.5,0) [0|100] "%"
-	  uint8_t VehicleSpeed;      // SG_ VehicleSpeed : 48|8@1+ (1,0) [0|255] "kph"
-	  uint8_t FlexPct;           // SG_ FlexPct : 56|8@1+ (1,0) [0|100] "%"
+    // BO_512 BASE0
+    uint16_t  WarningCounter;           // Счетчик предупреждений
+    uint16_t  LastError;                // Последняя ошибка
+    uint8_t   RevLimAct;                // Активен ограничитель оборотов
+    uint8_t   MainRelayAct;             // Главное реле активно
+    uint8_t   FuelPumpAct;              // Насос топлива активен
+    uint8_t   CELAct;                   // Check Engine активен
+    uint8_t   EGOHeatAct;               // Подогрев лямбда-зонда
+    uint8_t   LambdaProtectAct;         // Защита по лямбде
+    uint8_t   Fan;                      // Вентилятор 1
+    uint8_t   Fan2;                     // Вентилятор 2
+    uint8_t   CurrentGear;              // Текущая передача
+    float     DistanceTraveled;         // Пройденная дистанция, км
 
-	  // BO_514 BASE2
-	  float PPS;                 // SG_ PPS : 0|16@1- (0.01,0) [0|100] "%"
-	  float TPS1;                // SG_ TPS1 : 16|16@1- (0.01,0) [0|100] "%"
-	  float TPS2;                // SG_ TPS2 : 32|16@1- (0.01,0) [0|100] "%"
-	  float Wastegate;           // SG_ Wastegate : 48|16@1- (0.01,0) [0|100] "%"
+    // BO_513 BASE1
+    uint16_t  RPM;                      // Обороты двигателя
+    uint16_t  RPMs;                     // Обороты (альтернативно)
+    float     IgnitionTiming;           // Угол опережения зажигания
+    float     InjDuty;                  // Скважность впрыска, %
+    float     IgnDuty;                  // Скважность зажигания, %
+    uint8_t   VehicleSpeed;             // Скорость, км/ч
+    uint8_t   FlexPct;                  // Содержание этанола, %
 
-	  // BO_515 BASE3
-	  float MAP;                 // SG_ MAP : 0|16@1+ (0.03333333,0) [0|0] "kPa"
-	  int8_t CoolantTemp;        // SG_ CoolantTemp : 16|8@1+ (1,-40) [-40|200] "deg C"
-	  int8_t IntakeTemp;         // SG_ IntakeTemp : 24|8@1+ (1,-40) [-40|200] "deg C"
-	  int8_t AUX1Temp;           // SG_ AUX1Temp : 32|8@1+ (1,-40) [-40|200] "deg C"
-	  int8_t AUX2Temp;           // SG_ AUX2Temp : 40|8@1+ (1,-40) [-40|200] "deg C"
-	  int8_t MCUTemp;            // SG_ MCUTemp : 48|8@1+ (1,-40) [-40|100] "deg C"
-	  float FuelLevel;           // SG_ FuelLevel : 56|8@1+ (0.5,0) [0|0] "%"
+    // BO_514 BASE2
+    float     PPS;                      // Педаль акселератора, %
+    float     TPS1;                     // Дроссель 1, %
+    float     TPS2;                     // Дроссель 2, %
+    float     Wastegate;                // Положение вестгейта, %
 
-	  // BO_516 BASE4
-	  float OilPress;            // SG_ OilPress : 16|16@1+ (0.03333333,0) [0|0] "kPa"
-	  int8_t OilTemperature;     // SG_ OilTemperature : 32|8@1+ (1,-40) [-40|215] "deg C"
-	  int8_t FuelTemperature;    // SG_ FuelTemperature : 40|8@1+ (1,-40) [-40|215] "deg C"
-	  float BattVolt;            // SG_ BattVolt : 48|16@1+ (0.001,0) [0|25] "mV"
+    // BO_515 BASE3
+    float     MAP;                      // Давление во впуске, кПа
+    int8_t    CoolantTemp;              // Температура ОЖ, °C
+    int8_t    IntakeTemp;               // Температура воздуха, °C
+    int8_t    AUX1Temp;                 // Температура AUX1, °C
+    int8_t    AUX2Temp;                 // Температура AUX2, °C
+    int8_t    MCUTemp;                  // Температура МК, °C
+    float     FuelLevel;                // Уровень топлива, %
 
-	  // BO_517 BASE5
-	  uint16_t CylAM;            // SG_ CylAM : 0|16@1+ (1,0) [0|0] "mg"
-	  float EstMAF;              // SG_ EstMAF : 16|16@1+ (0.01,0) [0|0] "kg/h"
-	  float InjPW;               // SG_ InjPW : 32|16@1+ (0.003333333,0) [0|0] "ms"
-	  uint16_t KnockCt;          // SG_ KnockCt : 48|16@1+ (1,0) [0|0] "count"
+    // BO_516 BASE4
+    float     OilPress;                 // Давление масла, кПа
+    int8_t    OilTemperature;           // Температура масла, °C
+    int8_t    FuelTemperature;          // Температура топлива, °C
+    float     BattVolt;                 // Напряжение батареи, В
 
-	  // BO_518 BASE6
-	  uint16_t FuelUsed;         // SG_ FuelUsed : 0|16@1+ (1,0) [0|0] "g"
-	  float FuelFlow;            // SG_ FuelFlow : 16|16@1+ (0.005,0) [0|327] "g/s"
-	  float FuelTrim1;           // SG_ FuelTrim1 : 32|16@1+ (0.01,0) [-50|50] "%"
-	  float FuelTrim2;           // SG_ FuelTrim2 : 48|16@1+ (0.01,0) [-50|50] "%"
+    // BO_517 BASE5
+    uint16_t  CylAM;                    // Масса воздуха на цилиндр, мг
+    float     EstMAF;                   // Оценка MAF, кг/ч
+    float     InjPW;                    // Время впрыска, мс
+    uint16_t  KnockCt;                  // Счетчик детонации
 
-	  // BO_519 BASE7
-	  float Lam1;                // SG_ Lam1 : 0|16@1+ (0.0001,0) [0|2] "lambda"
-	  float Lam2;                // SG_ Lam2 : 16|16@1+ (0.0001,0) [0|2] "lambda"
-	  float FpLow;               // SG_ FpLow : 32|16@1+ (0.03333333,0) [0|0] "kPa"
-	  float FpHigh;              // SG_ FpHigh : 48|16@1+ (0.1,0) [0|0] "bar"
+    // BO_518 BASE6
+    uint16_t  FuelUsed;                 // Израсходовано топлива, г
+    float     FuelFlow;                 // Расход топлива, г/с
+    float     FuelTrim1;                // Коррекция топлива 1, %
+    float     FuelTrim2;                // Коррекция топлива 2, %
 
-	  // BO_520 BASE8
-	  int8_t Cam1I;              // SG_ Cam1I : 0|8@1- (1,0) [-100|100] "deg"
-	  int8_t Cam1Itar;           // SG_ Cam1Itar : 8|8@1- (1,0) [-100|100] "deg"
-	  int8_t Cam1E;              // SG_ Cam1E : 16|8@1- (1,0) [-100|100] "deg"
-	  int8_t Cam1Etar;           // SG_ Cam1Etar : 24|8@1- (1,0) [-100|100] "deg"
-	  int8_t Cam2I;              // SG_ Cam2I : 32|8@1- (1,0) [-100|100] "deg"
-	  int8_t Cam2Itar;           // SG_ Cam2Itar : 40|8@1- (1,0) [-100|100] "deg"
-	  int8_t Cam2E;              // SG_ Cam2E : 48|8@1- (1,0) [-100|100] "deg"
-	  int8_t Cam2Etar;           // SG_ Cam2Etar : 56|8@1- (1,0) [-100|100] "deg"
+    // BO_519 BASE7
+    float     Lam1;                     // Лямбда 1
+    float     Lam2;                     // Лямбда 2
+    float     FpLow;                    // Давление топлива низкое, кПа
+    float     FpHigh;                   // Давление топлива высокое, бар
 
-	  uint8_t CAN_ENABLED;
-	  uint8_t CAN_PROTOCOL;
+    // BO_520 BASE8
+    int8_t    Cam1I, Cam1Itar;          // Фазы распредвала 1 (факт/таргет)
+    int8_t    Cam1E, Cam1Etar;          // Фазы распредвала 1 выпуск (факт/таргет)
+    int8_t    Cam2I, Cam2Itar;          // Фазы распредвала 2 (факт/таргет)
+    int8_t    Cam2E, Cam2Etar;          // Фазы распредвала 2 выпуск (факт/таргет)
 
-// дополнения влад
+    // --- ДОПОЛНИТЕЛЬНЫЕ ПОЛЯ ---
+    // 0x281
+    float     MAF;                      // Массовый расход воздуха, кг/ч
+    float     Load;                     // Нагрузка двигателя, %
 
+    // 0x282
+    float     InjectorDuty;             // Скважность форсунок, %
+    float     InjTime1;                 // Время впрыска 1 ряд, мс
+    float     InjTime2;                 // Время впрыска 2 ряд, мс
 
-	  // BO_521 BASE8
-	  	  int16_t WarningCounterv;              // SG_ Cam1I : 0|8@1- (1,0) [-100|100] "deg"
-	  	  int16_t LastErrorv;           // SG_ Cam1Itar : 8|8@1- (1,0) [-100|100] "deg"
-	  	  int16_t NextOBD2Error;              // SG_ Cam1E : 16|8@1- (1,0) [-100|100] "deg"
+    // 0x283
+    float     TPS;                      // Положение дросселя, %
+    uint16_t  IAC_Step;                 // Положение РХХ, шаг
+    float     TPS_Req;                  // Требуемое положение дросселя, %
+    float     Pedal;                    // Положение педали, %
 
+    // 0x284
+    float     Accel1, Accel2;           // Ускорения, G
+    float     KnockCorr;                // Коррекция УОЗ по детонации
 
+    // 0x381
+    float     Lambda, O2_Voltage, LTFT, STFT;
 
-	int16_t FUELUSEDs;
+    // 0x382
+    float     KZ_Time;
+    uint8_t   Gear, ErrorIndex;
 
+    // 0x383
+    float     Boost, BoostLimit, EGR_Valve;
+    int16_t   TPS_Delta;
 
-	uint16_t GPS_LATITUDE;
-	uint16_t GPS_LONGITUDE;
-	uint16_t GPS_FIXED;
-	uint16_t GPS_SATTELITES;
-	uint16_t GPS_ALTITUDE;
-	uint16_t GPS_SPEED;
+    // 0x481
+    float     CamPos, LambdaReq, InjPhase1, InjPhase2;
 
+    // 0x482
+    float     FuelPress, CoolantPress;
 
-	uint8_t ENGINE_PROTECTION;
+    // 0x581
+    int16_t   EGT1, EGT2, EGT3, EGT4;
 
+    // 0x582
+    float     FuelHour, FuelRoad;
 
+    // 0x583
+    int8_t    CoolantTempOut;
+    int16_t   AtmoPress;
 
-	uint16_t IND_FUEL;
-	uint16_t IND_OIL;
-	uint16_t IND_BATT;
+    // 0x584
+    uint8_t   ADLM_OUT[16];
+    uint8_t   ADLM_IN[12];
 
-	uint16_t IND_DTC;
-	uint16_t IND_ECT;
+    // 0x781
+    char      SW_Version[8];
 
+    // --- Для принимаемых сообщений ---
+    float     Lambda1, O2_Content1;
+    bool      Sensor1_Ready;
+    float     Lambda2, O2_Content2;
+    bool      Sensor2_Ready;
+    int16_t   EGT[4];
+    float     LoggerBattVolt;
+    int16_t   LoggerIntTemp, LoggerExtTemp;
+    float     WheelSpeed[4];
+    uint8_t   ADLM_INX[16];
 
-	uint16_t IND_ECT_BLUE;
+    // --- Дополнения ---
+    uint8_t   CAN_ENABLED;              // CAN включён
+    uint8_t   CAN_PROTOCOL;             // Протокол CAN
 
+    // BO_521 BASE8
+    int16_t   WarningCounterv;
+    int16_t   LastErrorv;
+    int16_t   NextOBD2Error;
 
+    float   FUELUSEDs;
 
+    // GPS данные
+    uint16_t  GPS_LATITUDE;
+    uint16_t  GPS_LONGITUDE;
+    uint16_t  GPS_FIXED;
+    uint16_t  GPS_SATTELITES;
+    uint16_t  GPS_ALTITUDE;
+    uint16_t  GPS_SPEED;
 
+    uint8_t   ENGINE_PROTECTION;        // Защита двигателя
 
+    // Индикаторы
+    uint16_t  IND_FUEL;
+    uint16_t  IND_OIL;
+    uint16_t  IND_BATT;
+    uint16_t  IND_DTC;
+    uint16_t  IND_ECT;
+    uint16_t  IND_ECT_BLUE;
+    uint16_t  indServis;
+    uint32_t  MOTOHOURS;                // Моточасы
 
-	uint16_t LED_BRIGHTNESS;
-	uint8_t LED_BRIGHTNESS_CHANGED;
-	uint16_t LCD_BRIGHTNESS;
-	uint8_t LCD_BRIGHTNESS_CHANGED;
+    // Яркость подсветки
+    uint16_t  LED_BRIGHTNESS;
+    uint8_t   LED_BRIGHTNESS_CHANGED;
+    uint16_t  LCD_BRIGHTNESS;
+    uint8_t   LCD_BRIGHTNESS_CHANGED;
 
+    const char* Error_Mes;              // Сообщение об ошибке
+    uint16_t    container1;
+    uint16_t    container2;
+    uint16_t    container3;
+    uint16_t    container4;
+    uint16_t    container5;
+    uint16_t    container6;
 
+    float       remains_km;
 
-	uint8_t CELL[16];
+    uint8_t     CELL[16];               // Ячейки (например, для данных BMS)
 
-	SCREEN_Channel SCREEN_FIELDS[8];
-	uint8_t SCREEN_FIELDS_CHANGED;
+    float     OilLevel;
+
+    SCREEN_Channel SCREEN_FIELDS[8];    // Параметры экрана
+    uint8_t     SCREEN_FIELDS_CHANGED;  // Флаг изменения экрана
 
 } Statuses;
 
+//----------------------
+// Буфер передачи по UART
+//----------------------
 uint8_t uartTransmitBufferSize;
 uint8_t uartTransmitBuffer[128];
 
@@ -206,4 +344,4 @@ uint8_t uartTransmitBuffer[128];
 }
 #endif
 
-#endif // GLOBALS_H
+#endif // __GLOBALS_H

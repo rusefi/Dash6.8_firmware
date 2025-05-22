@@ -10,13 +10,26 @@
 
 #include "Globals.h"
 
-extern Statuses Current_Status;
-extern FILE *FileBuffer;
-extern uint8_t BufferIsSet;
+/*-----------------------------------------------------------------------------
+ * Глобальные переменные, используемые в разных модулях проекта
+ *-----------------------------------------------------------------------------
+ */
 
-extern uint8_t uartTransmitBufferSize;
-extern uint8_t uartTransmitBuffer[128];
+/* --- Основные статусы и буферы --- */
+extern Statuses   Current_Status;         // Текущий статус системы
+extern FILE      *FileBuffer;             // Указатель на файловый буфер (если используется)
+extern uint8_t    BufferIsSet;            // Флаг установки буфера
 
+/* --- UART --- */
+extern uint8_t    uartTransmitBufferSize; // Размер буфера передачи по UART
+extern uint8_t    uartTransmitBuffer[128];// Буфер передачи по UART
 
+/* --- UART3 (DMA) --- */
+extern UART_HandleTypeDef huart3;         // Дескриптор UART3 (DMA)
 
-#endif /* INC_EXTERN_H_ */
+/*-----------------------------------------------------------------------------
+ * Добавляйте сюда extern-переменные для других модулей по мере необходимости
+ *-----------------------------------------------------------------------------
+ */
+
+#endif /* __EXTERN_H_ */

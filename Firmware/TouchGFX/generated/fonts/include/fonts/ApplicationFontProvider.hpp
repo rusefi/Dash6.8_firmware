@@ -22,9 +22,9 @@ struct Typography
 
 struct TypographyFontIndex
 {
-    static const touchgfx::FontId SENSOR_LABEL = 0;   // Michroma_Regular_70_2bpp
+    static const touchgfx::FontId SENSOR_LABEL = 0;   // Michroma_Regular_65_2bpp
     static const touchgfx::FontId SENSOR_UNIT = 1;    // Michroma_Regular_100_2bpp
-    static const touchgfx::FontId SENSOR_VALUES = 2;  // Michroma_Regular_52_2bpp
+    static const touchgfx::FontId SENSOR_VALUES = 2;  // Michroma_Regular_43_2bpp
     static const touchgfx::FontId SENSOR_ZN = 3;      // Michroma_Regular_52_4bpp
     static const touchgfx::FontId PARAMTR_VALUES = 4; // Michroma_Regular_32_4bpp
     static const uint16_t NUMBER_OF_FONTS = 5;

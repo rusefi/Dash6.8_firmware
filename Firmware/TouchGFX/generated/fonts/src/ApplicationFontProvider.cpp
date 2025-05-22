@@ -10,13 +10,13 @@ touchgfx::Font* ApplicationFontProvider::getFont(touchgfx::FontId typography)
     switch (typography)
     {
     case Typography::SENSOR_LABEL:
-        // Michroma_Regular_70_2bpp
+        // Michroma_Regular_65_2bpp
         return const_cast<touchgfx::Font*>(TypedTextDatabase::getFonts()[0]);
     case Typography::SENSOR_UNIT:
         // Michroma_Regular_100_2bpp
         return const_cast<touchgfx::Font*>(TypedTextDatabase::getFonts()[1]);
     case Typography::SENSOR_VALUES:
-        // Michroma_Regular_52_2bpp
+        // Michroma_Regular_43_2bpp
         return const_cast<touchgfx::Font*>(TypedTextDatabase::getFonts()[2]);
     case Typography::SENSOR_ZN:
         // Michroma_Regular_52_4bpp

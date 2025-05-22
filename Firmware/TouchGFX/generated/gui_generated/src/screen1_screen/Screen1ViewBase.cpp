@@ -16,6 +16,11 @@ Screen1ViewBase::Screen1ViewBase() :
     __background.setColor(touchgfx::Color::getColorFromRGB(0, 0, 0));
     add(__background);
 
+    left_button.setXY(7, 14);
+    left_button.setBitmaps(touchgfx::Bitmap(BITMAP_RECORD_CIRCLE_ID), touchgfx::Bitmap(BITMAP_RECORD_CIRCLE_ID));
+    left_button.setAction(buttonCallback);
+    add(left_button);
+
     gauge2.setBackground(touchgfx::Bitmap(BITMAP_TEMP_ID));
     gauge2.setPosition(722, 0, 558, 479);
     gauge2.setCenter(259.2f, 240.0f);
@@ -53,20 +58,23 @@ Screen1ViewBase::Screen1ViewBase() :
     gauge1.setArcPosition(0, 0, 448, 479);
     add(gauge1);
 
-    image5.setXY(107, 1);
+    image5.setXY(96, 1);
     image5.setBitmap(touchgfx::Bitmap(BITMAP_FRAME_69_ID));
     add(image5);
 
-    indOil.setXY(736, 9);
+    indOil.setXY(662, 9);
     indOil.setBitmap(touchgfx::Bitmap(BITMAP_OIL_ID));
+    indOil.setVisible(false);
     add(indOil);
 
-    indBatt.setXY(598, 9);
+    indBatt.setXY(552, 9);
     indBatt.setBitmap(touchgfx::Bitmap(BITMAP_BATTERYBLOCK_ID));
+    indBatt.setVisible(false);
     add(indBatt);
 
-    indDTC.setXY(458, 8);
+    indDTC.setXY(443, 8);
     indDTC.setBitmap(touchgfx::Bitmap(BITMAP_CHEK_ID));
+    indDTC.setVisible(false);
     add(indDTC);
 
     indECT_blue.setXY(973, 359);
@@ -83,6 +91,11 @@ Screen1ViewBase::Screen1ViewBase() :
     indFuel.setBitmap(touchgfx::Bitmap(BITMAP_FUIL_LLOV_ID));
     indFuel.setVisible(false);
     add(indFuel);
+
+    indServis.setXY(788, 15);
+    indServis.setBitmap(touchgfx::Bitmap(BITMAP_VECTOR_ID));
+    indServis.setVisible(false);
+    add(indServis);
 
     speed.setXY(593, 88);
     speed.setColor(touchgfx::Color::getColorFromRGB(193, 198, 199));
@@ -102,7 +115,16 @@ Screen1ViewBase::Screen1ViewBase() :
     value_3.setTypedText(touchgfx::TypedText(T___SINGLEUSE_RDWZ));
     add(value_3);
 
-    value_2.setXY(993, 263);
+    value_9.setXY(256, 135);
+    value_9.setColor(touchgfx::Color::getColorFromRGB(193, 198, 199));
+    value_9.setLinespacing(0);
+    Unicode::snprintf(value_9Buffer, VALUE_9_SIZE, "%s", touchgfx::TypedText(T___SINGLEUSE_QE8S).getText());
+    value_9.setWildcard(value_9Buffer);
+    value_9.resizeToCurrentText();
+    value_9.setTypedText(touchgfx::TypedText(T___SINGLEUSE_NP6C));
+    add(value_9);
+
+    value_2.setXY(997, 263);
     value_2.setColor(touchgfx::Color::getColorFromRGB(193, 198, 199));
     value_2.setLinespacing(0);
     Unicode::snprintf(value_2Buffer, VALUE_2_SIZE, "%s", touchgfx::TypedText(T___SINGLEUSE_OVOH).getText());
@@ -111,16 +133,7 @@ Screen1ViewBase::Screen1ViewBase() :
     value_2.setTypedText(touchgfx::TypedText(T___SINGLEUSE_NBH4));
     add(value_2);
 
-    value_5.setXY(554, 402);
-    value_5.setColor(touchgfx::Color::getColorFromRGB(33, 43, 49));
-    value_5.setLinespacing(0);
-    Unicode::snprintf(value_5Buffer, VALUE_5_SIZE, "%s", touchgfx::TypedText(T___SINGLEUSE_2OQK).getText());
-    value_5.setWildcard(value_5Buffer);
-    value_5.resizeToCurrentText();
-    value_5.setTypedText(touchgfx::TypedText(T___SINGLEUSE_A2XU));
-    add(value_5);
-
-    value_1.setXY(757, 403);
+    value_1.setXY(802, 414);
     value_1.setColor(touchgfx::Color::getColorFromRGB(33, 43, 49));
     value_1.setLinespacing(0);
     Unicode::snprintf(value_1Buffer, VALUE_1_SIZE, "%s", touchgfx::TypedText(T___SINGLEUSE_5SH3).getText());
@@ -138,10 +151,176 @@ Screen1ViewBase::Screen1ViewBase() :
     value_0.setTypedText(touchgfx::TypedText(T___SINGLEUSE_LKJO));
     add(value_0);
 
-    changeBacklight1.setXY(1186, 394);
+    changeBacklight1.setXY(1190, 401);
     changeBacklight1.setBitmaps(touchgfx::Bitmap(BITMAP_RESHOT_ICON_LIGHT_MAX_SKL25EYVD9_1_ID), touchgfx::Bitmap(BITMAP_RESHOT_ICON_LIGHT_MAX_SKL25EYVD9_1_ID));
     changeBacklight1.setAction(buttonCallback);
     add(changeBacklight1);
+
+    right_button.setXY(1204, 14);
+    right_button.setBitmaps(touchgfx::Bitmap(BITMAP_RECORD_CIRCLE_ID), touchgfx::Bitmap(BITMAP_RECORD_CIRCLE_ID));
+    right_button.setAction(buttonCallback);
+    add(right_button);
+
+    container2.setPosition(384, 409, 286, 69);
+    value_5.setXY(173, 5);
+    value_5.setColor(touchgfx::Color::getColorFromRGB(33, 43, 49));
+    value_5.setLinespacing(0);
+    Unicode::snprintf(value_5Buffer, VALUE_5_SIZE, "%s", touchgfx::TypedText(T___SINGLEUSE_PBW6).getText());
+    value_5.setWildcard(value_5Buffer);
+    value_5.resizeToCurrentText();
+    value_5.setTypedText(touchgfx::TypedText(T___SINGLEUSE_HF52));
+    container2.add(value_5);
+
+    image7.setXY(219, 27);
+    image7.setBitmap(touchgfx::Bitmap(BITMAP_LH_ID));
+    container2.add(image7);
+
+    add(container2);
+
+    container3.setPosition(388, 409, 300, 68);
+    container3.setVisible(false);
+    value_7.setXY(237, 5);
+    value_7.setColor(touchgfx::Color::getColorFromRGB(33, 43, 49));
+    value_7.setLinespacing(0);
+    Unicode::snprintf(value_7Buffer, VALUE_7_SIZE, "%s", touchgfx::TypedText(T___SINGLEUSE_KJCD).getText());
+    value_7.setWildcard(value_7Buffer);
+    value_7.resizeToCurrentText();
+    value_7.setTypedText(touchgfx::TypedText(T___SINGLEUSE_XO2T));
+    container3.add(value_7);
+
+    textArea2.setXY(225, -17);
+    textArea2.setColor(touchgfx::Color::getColorFromRGB(33, 43, 49));
+    textArea2.setLinespacing(0);
+    textArea2.setTypedText(touchgfx::TypedText(T___SINGLEUSE_4PFL));
+    container3.add(textArea2);
+
+    value_8.setXY(186, 5);
+    value_8.setColor(touchgfx::Color::getColorFromRGB(33, 43, 49));
+    value_8.setLinespacing(0);
+    Unicode::snprintf(value_8Buffer, VALUE_8_SIZE, "%s", touchgfx::TypedText(T___SINGLEUSE_L3IM).getText());
+    value_8.setWildcard(value_8Buffer);
+    value_8.resizeToCurrentText();
+    value_8.setTypedText(touchgfx::TypedText(T___SINGLEUSE_V7MX));
+    container3.add(value_8);
+
+    image9.setXY(279, 25);
+    image9.setBitmap(touchgfx::Bitmap(BITMAP_H_ID));
+    container3.add(image9);
+
+    add(container3);
+
+    image8.setXY(846, 434);
+    image8.setBitmap(touchgfx::Bitmap(BITMAP_V_ID));
+    add(image8);
+
+    container4.setPosition(886, 24, 310, 250);
+    container4.setVisible(false);
+    gauge4.setBackground(touchgfx::Bitmap(BITMAP_GROUP_38_ID));
+    gauge4.setPosition(68, 24, 240, 240);
+    gauge4.setCenter(21.5f, 190.4f);
+    gauge4.setStartEndAngle(87.3f, 2.3f);
+    gauge4.setRange(0, 130);
+    gauge4.setValue(0);
+    gauge4.setNeedle(BITMAP_NEEDL_OIL_ID, 6.2f, 192.2f);
+    gauge4.setMovingNeedleRenderingAlgorithm(touchgfx::TextureMapper::BILINEAR_INTERPOLATION);
+    gauge4.setSteadyNeedleRenderingAlgorithm(touchgfx::TextureMapper::BILINEAR_INTERPOLATION);
+    gauge4.setArcVisible();
+    gauge4Painter.setColor(touchgfx::Color::getColorFromRGB(20, 151, 197));
+    gauge4.getArc().setPainter(gauge4Painter);
+    gauge4.getArc().setRadius(175);
+    gauge4.getArc().setLineWidth(13);
+    gauge4.getArc().setCapPrecision(10);
+    gauge4.setArcPosition(20, 0, 210, 210);
+    container4.add(gauge4);
+
+    value_10.setXY(95, 136);
+    value_10.setColor(touchgfx::Color::getColorFromRGB(193, 198, 199));
+    value_10.setLinespacing(0);
+    Unicode::snprintf(value_10Buffer, VALUE_10_SIZE, "%s", touchgfx::TypedText(T___SINGLEUSE_GKKV).getText());
+    value_10.setWildcard(value_10Buffer);
+    value_10.resizeToCurrentText();
+    value_10.setTypedText(touchgfx::TypedText(T___SINGLEUSE_J6GL));
+    container4.add(value_10);
+
+    add(container4);
+
+    container5.setPosition(954, 43, 250, 250);
+    container5.setVisible(false);
+    gauge3.setBackground(touchgfx::Bitmap(BITMAP_GROUP_39_ID));
+    gauge3.setPosition(0, 5, 240, 240);
+    gauge3.setCenter(21.5f, 190.4f);
+    gauge3.setStartEndAngle(87.3f, 2.3f);
+    gauge3.setRange(0, 10);
+    gauge3.setValue(0);
+    gauge3.setNeedle(BITMAP_NEEDL_OIL_ID, 6.2f, 192.2f);
+    gauge3.setMovingNeedleRenderingAlgorithm(touchgfx::TextureMapper::BILINEAR_INTERPOLATION);
+    gauge3.setSteadyNeedleRenderingAlgorithm(touchgfx::TextureMapper::BILINEAR_INTERPOLATION);
+    gauge3.setArcVisible();
+    gauge3Painter.setColor(touchgfx::Color::getColorFromRGB(20, 151, 197));
+    gauge3.getArc().setPainter(gauge3Painter);
+    gauge3.getArc().setRadius(175);
+    gauge3.getArc().setLineWidth(13);
+    gauge3.getArc().setCapPrecision(10);
+    gauge3.setArcPosition(20, 0, 210, 210);
+    container5.add(gauge3);
+
+    value_11.setXY(27, 117);
+    value_11.setColor(touchgfx::Color::getColorFromRGB(193, 198, 199));
+    value_11.setLinespacing(0);
+    Unicode::snprintf(value_11Buffer, VALUE_11_SIZE, "%s", touchgfx::TypedText(T___SINGLEUSE_JNAI).getText());
+    value_11.setWildcard(value_11Buffer);
+    value_11.resizeToCurrentText();
+    value_11.setTypedText(touchgfx::TypedText(T___SINGLEUSE_698Z));
+    container5.add(value_11);
+
+    add(container5);
+
+    container6.setPosition(954, 43, 250, 250);
+    gauge5.setBackground(touchgfx::Bitmap(BITMAP_GROUP_42_ID));
+    gauge5.setPosition(0, 5, 240, 240);
+    gauge5.setCenter(21.5f, 190.4f);
+    gauge5.setStartEndAngle(87.3f, 2.3f);
+    gauge5.setRange(0, 100);
+    gauge5.setValue(0);
+    gauge5.setNeedle(BITMAP_NEEDL_OIL_ID, 6.2f, 192.2f);
+    gauge5.setMovingNeedleRenderingAlgorithm(touchgfx::TextureMapper::BILINEAR_INTERPOLATION);
+    gauge5.setSteadyNeedleRenderingAlgorithm(touchgfx::TextureMapper::BILINEAR_INTERPOLATION);
+    gauge5.setArcVisible();
+    gauge5Painter.setColor(touchgfx::Color::getColorFromRGB(20, 151, 197));
+    gauge5.getArc().setPainter(gauge5Painter);
+    gauge5.getArc().setRadius(175);
+    gauge5.getArc().setLineWidth(13);
+    gauge5.getArc().setCapPrecision(10);
+    gauge5.setArcPosition(20, 0, 210, 210);
+    container6.add(gauge5);
+
+    value_12.setXY(27, 117);
+    value_12.setColor(touchgfx::Color::getColorFromRGB(193, 198, 199));
+    value_12.setLinespacing(0);
+    Unicode::snprintf(value_12Buffer, VALUE_12_SIZE, "%s", touchgfx::TypedText(T___SINGLEUSE_5P31).getText());
+    value_12.setWildcard(value_12Buffer);
+    value_12.resizeToCurrentText();
+    value_12.setTypedText(touchgfx::TypedText(T___SINGLEUSE_GGVJ));
+    container6.add(value_12);
+
+    add(container6);
+
+    container1.setPosition(237, 63, 833, 236);
+    container1.setVisible(false);
+    image6.setXY(20, 7);
+    image6.setBitmap(touchgfx::Bitmap(BITMAP_FRAME_66_ID));
+    container1.add(image6);
+
+    textArea1.setXY(400, 78);
+    textArea1.setColor(touchgfx::Color::getColorFromRGB(193, 198, 199));
+    textArea1.setLinespacing(0);
+    Unicode::snprintf(textArea1Buffer, TEXTAREA1_SIZE, "%s", touchgfx::TypedText(T___SINGLEUSE_XT9B).getText());
+    textArea1.setWildcard(textArea1Buffer);
+    textArea1.resizeToCurrentText();
+    textArea1.setTypedText(touchgfx::TypedText(T___SINGLEUSE_1BQN));
+    container1.add(textArea1);
+
+    add(container1);
 }
 
 Screen1ViewBase::~Screen1ViewBase()
@@ -162,5 +341,19 @@ void Screen1ViewBase::buttonCallbackHandler(const touchgfx::AbstractButton& src)
         //When changeBacklight1 clicked call virtual function
         //Call changeBacklight
         changeBacklight();
+    }
+    if (&src == &left_button)
+    {
+        //Interaction2
+        //When left_button clicked call virtual function
+        //Call leftbutton
+        leftbutton();
+    }
+    if (&src == &right_button)
+    {
+        //Interaction3
+        //When right_button clicked call virtual function
+        //Call rightbutton
+        rightbutton();
     }
 }
