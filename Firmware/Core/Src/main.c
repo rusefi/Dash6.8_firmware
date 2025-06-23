@@ -44,28 +44,34 @@
 
 #include"CAN.h"
 
+//#include "z_flash_W25QXXX.h"
+#include "level_tables.h"
+#include "commands.h"
+#include "data.h"
 #include "json_dispatcher.h"
+#include "W25Qxx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 
-#define JSON_MSG_MAX_LEN 512
-#define JSON_QUEUE_SIZE  4
-
-#define RPM_THRESHOLD 500
-#define RPM_HYSTERESIS 10
 
 
 
-osMessageQueueId_t jsonQueue;
+
+
+
+
+osMessageQueueId_t jsonQueueHandle;
 nmea_t gps;
 
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define JSON_MSG_MAX_LEN 512
+#define RPM_THRESHOLD 500
+#define RPM_HYSTERESIS 10
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -210,6 +216,11 @@ const osThreadAttr_t JSON_Parse_Task_attributes = {
   .stack_size = 1024 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
+/* Definitions for jsonQueue */
+osMessageQueueId_t jsonQueueHandle;
+const osMessageQueueAttr_t jsonQueue_attributes = {
+  .name = "jsonQueue"
+};
 /* USER CODE BEGIN PV */
 FMC_SDRAM_CommandTypeDef command;
 
@@ -225,7 +236,7 @@ uint8_t RxData[8];
 uint8_t uartTransmitBufferSize;
 uint8_t uartTransmitBuffer[128];
 
-
+static char json_buf[JSON_MSG_MAX_LEN];
 
 int rpmWindowSize = 10;     //  размер окна для RPM
 int windows[2] = {10, 30};   //  0 fuelFlow  1
@@ -274,6 +285,7 @@ void initAll(void);
 bool LoadFlagsFromEEPROM(void);
 void SaveFlagsToEEPROM(void);
 void InitFlags(void);
+void app_init_usart3(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -323,14 +335,15 @@ int main(void)
   MX_USART1_UART_Init();
   MX_I2C2_Init();
   MX_SPI1_Init();
+  W25qxx_Init();
   MX_USART3_UART_Init();
   MX_I2C3_Init();
   MX_TouchGFX_Init();
   /* Call PreOsInit function */
   MX_TouchGFX_PreOSInit();
   /* USER CODE BEGIN 2 */
+  // W25qxx_Init();
   InitFlags();
-
   EEPROM_Config_t eeprom_cfg = {
           .hi2c = &hi2c3,
           .hcrc = 0,
@@ -345,6 +358,7 @@ int main(void)
           .array_main_addr = 0x0400,
           .array_backup_addr = 0x0500
       };
+  app_init_usart3();
   EEPROM_Init(&eeprom_cfg);
 //  LoadFlagsFromEEPROM();
   initAll();
@@ -368,8 +382,12 @@ int main(void)
 	/* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
 
+  /* Create the queue(s) */
+  /* creation of jsonQueue */
+  jsonQueueHandle = osMessageQueueNew (6, 512, &jsonQueue_attributes);
+
   /* USER CODE BEGIN RTOS_QUEUES */
-  jsonQueue = osMessageQueueNew(JSON_QUEUE_SIZE, JSON_MSG_MAX_LEN, NULL);
+
 	/* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
 
@@ -402,10 +420,10 @@ int main(void)
   otherHandle = osThreadNew(Start_other, NULL, &other_attributes);
 
   /* creation of RPM_10 */
-  RPM_10Handle = osThreadNew(Start_RMP_10, &rpmWindowSize, &RPM_10_attributes);
+  RPM_10Handle = osThreadNew(Start_RMP_10, (void*) &rpmWindowSize, &RPM_10_attributes);
 
   /* creation of FUELUSED_11 */
-  FUELUSED_11Handle = osThreadNew(Start_FUELUSED_11, &windows, &FUELUSED_11_attributes);
+  FUELUSED_11Handle = osThreadNew(Start_FUELUSED_11, (void*) &windows, &FUELUSED_11_attributes);
 
   /* creation of UART_Task */
   UART_TaskHandle = osThreadNew(Start_UART_Task, NULL, &UART_Task_attributes);
@@ -786,14 +804,14 @@ static void MX_LTDC_Init(void)
   hltdc.Init.VSPolarity = LTDC_VSPOLARITY_AH;
   hltdc.Init.DEPolarity = LTDC_DEPOLARITY_AL;
   hltdc.Init.PCPolarity = LTDC_PCPOLARITY_IIPC;
-  hltdc.Init.HorizontalSync = 4;
-  hltdc.Init.VerticalSync = 29;
-  hltdc.Init.AccumulatedHBP = 9;
-  hltdc.Init.AccumulatedVBP = 69;
-  hltdc.Init.AccumulatedActiveW = 489;
-  hltdc.Init.AccumulatedActiveH = 1349;
-  hltdc.Init.TotalWidth = 494;
-  hltdc.Init.TotalHeigh = 1369;
+  hltdc.Init.HorizontalSync = 5;
+  hltdc.Init.VerticalSync = 14;
+  hltdc.Init.AccumulatedHBP = 17;
+  hltdc.Init.AccumulatedVBP = 44;
+  hltdc.Init.AccumulatedActiveW = 497;
+  hltdc.Init.AccumulatedActiveH = 1324;
+  hltdc.Init.TotalWidth = 509;
+  hltdc.Init.TotalHeigh = 1339;
   hltdc.Init.Backcolor.Blue = 0;
   hltdc.Init.Backcolor.Green = 0;
   hltdc.Init.Backcolor.Red = 0;
@@ -849,7 +867,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -1121,8 +1139,8 @@ static void MX_FMC_Init(void)
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-/* USER CODE BEGIN MX_GPIO_Init_1 */
-/* USER CODE END MX_GPIO_Init_1 */
+  /* USER CODE BEGIN MX_GPIO_Init_1 */
+  /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOE_CLK_ENABLE();
@@ -1240,8 +1258,8 @@ static void MX_GPIO_Init(void)
   HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
-/* USER CODE BEGIN MX_GPIO_Init_2 */
-/* USER CODE END MX_GPIO_Init_2 */
+  /* USER CODE BEGIN MX_GPIO_Init_2 */
+  /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
@@ -1285,22 +1303,22 @@ char* build_status_json(void) {
     cJSON_AddNumberToObject(payload, "map", Current_Status.MAP);
     cJSON_AddNumberToObject(payload, "tps", Current_Status.TPS1);
     cJSON_AddNumberToObject(payload, "afr", Current_Status.AFR);
-    cJSON_AddNumberToObject(payload, "timing", Current_Status.IgnitionTiming);
-    cJSON_AddNumberToObject(payload, "injDuty", Current_Status.InjDuty);
-    cJSON_AddNumberToObject(payload, "vvt", Current_Status.VVTPos);
-    cJSON_AddNumberToObject(payload, "speed", Current_Status.VehicleSpeed);
+    cJSON_AddNumberToObject(payload, "IgnTiming", Current_Status.IgnitionTiming);
+    cJSON_AddNumberToObject(payload, "motorhours", Current_Status.MOTOHOURS);
+    cJSON_AddNumberToObject(payload, "pps", Current_Status.PPS);
+    cJSON_AddNumberToObject(payload, "speed", Current_Status.GPS_SPEED);
     cJSON_AddNumberToObject(payload, "clt", Current_Status.CoolantTemp);
     cJSON_AddNumberToObject(payload, "iat", Current_Status.IntakeTemp);
     cJSON_AddNumberToObject(payload, "oilTemp", Current_Status.OilTemperature);
     cJSON_AddNumberToObject(payload, "oilPress", Current_Status.OilPress);
-    cJSON_AddNumberToObject(payload, "fuelPress", Current_Status.FuelFlow); // В структуре FuelFlow - можно заменить на FuelPress если есть
-    cJSON_AddNumberToObject(payload, "fuelLevel", Current_Status.FuelLevel);
-    cJSON_AddNumberToObject(payload, "fuelFlow", Current_Status.FuelFlow);
-    cJSON_AddNumberToObject(payload, "lambda", Current_Status.Lam1);
-    cJSON_AddNumberToObject(payload, "statusFlags", Current_Status.ENGINE_PROTECTION);
-    cJSON_AddNumberToObject(payload, "errorCode", Current_Status.LastError);
-    cJSON_AddNumberToObject(payload, "batteryVoltage", Current_Status.BattVolt);
-    cJSON_AddNumberToObject(payload, "knockLevel", Current_Status.KnockCt);
+    cJSON_AddNumberToObject(payload, "oilLevel", Current_Status.OilLevel); // В структуре FuelFlow - можно заменить на FuelPress если есть
+    cJSON_AddNumberToObject(payload, "fuelLevelraw", Current_Status.FuelLevelRaw);
+    cJSON_AddNumberToObject(payload, "knockCt", Current_Status.KnockCt);
+    cJSON_AddNumberToObject(payload, "fueluseds", Current_Status.FUELUSEDs);
+//    cJSON_AddNumberToObject(payload, "statusFlags", Current_Status.ENGINE_PROTECTION);
+//    cJSON_AddNumberToObject(payload, "errorCode", Current_Status.LastError);
+    cJSON_AddNumberToObject(payload, "battVolt", Current_Status.BattVolt);
+ //   cJSON_AddNumberToObject(payload, "knockLevel", Current_Status.KnockCt);
 
     cJSON_AddItemToObject(root, "payload", payload);
 
@@ -1310,31 +1328,7 @@ char* build_status_json(void) {
 }
 
 
-void handle_json_message(const char* json_str) {
-    JsonMessage msg;
-    if (parse_and_dispatch_json(json_str, &msg)) {
-        switch (msg.type) {
-            case JSON_TYPE_UPDATE:
-                // обработка msg.payload.status
-                break;
-            case JSON_TYPE_FLAGS:
-                // обработка msg.payload.flags
-                break;
-            case JSON_TYPE_COMMAND:
-                // обработка msg.payload.command
-                break;
-            case JSON_TYPE_DATA:
-                // обработка msg.payload.data
-                break;
-            case JSON_TYPE_REQUEST:
-                // обработка msg.payload.request
-                break;
-            default:
-                // Неизвестный тип
-                break;
-        }
-    }
-}
+
 
 
 
@@ -1424,18 +1418,26 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
 
  // оброботчик прерываний прием передача USART3
 
-    void json_rx_callback(const char* json_str)
-    {
-        // Кладём принятый JSON в очередь (копируем, чтобы не потерять данные)
-        if (json_str && jsonQueue) {
-            osMessageQueuePut(jsonQueue, json_str, 0, 0);
-        }
-    }
+void json_rx_callback(const char* json_str)
+{
+    if (!json_str) return;
+    // Кладём строку в очередь для задачи
+    osMessageQueuePut(jsonQueueHandle, json_str, 0, 0);
+}
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
+    USART3_JSON_RxEventCallback(huart, Size);
+}
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
+     USART3_JSON_TxCpltCallback(huart);
+}
 
 
-    void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
-        USART3_JSON_TxCpltCallback(huart);
-    }
+void app_init_usart3(void)
+{
+    USART3_JSON_Init(&huart3, 115200, json_rx_callback);
+}
 
 void initAll(void) {
 
@@ -1547,9 +1549,15 @@ void Start_START_Task(void *argument)
 	Current_Status.CAN_ENABLED = 1;
 	Current_Status.FuelUsed = 0;
 
+	fuel_level_load_table();
+	oil_level_load_table();
 
 	for (;;) {
-       osDelay(1);
+
+		float raw_fuel = Current_Status.FuelLevelRaw;
+	    Current_Status.FuelLevel = fuel_level_get_liters(raw_fuel);
+	    Current_Status.FuelLevelGui =  (100/fuelLevelMax)*Current_Status.FuelLevel;
+       osDelay(10);
 	}
 
   /* USER CODE END 5 */
@@ -1648,7 +1656,7 @@ void Start_OIL(void *argument)
 
 	  		Current_Status.IND_OIL = Current_Status.IND_OIL < 100 ? true : false;
 
-	  		Current_Status.IND_DTC = (Current_Status.WarningCounter != 0) ? true : false;
+	  //		Current_Status.IND_DTC = (Current_Status.WarningCounter != 0) ? true : false;
     osDelay(500);
   }
   /* USER CODE END Start_OIL */
@@ -1674,7 +1682,7 @@ void Start_Ind_FUEL(void *argument)
 	       osDelay(300);
 	       Current_Status.IND_FUEL = false;
 	       osDelay(300);
-	     } else if (fuelLevelPercentage < 10) {
+	     } else if (fuelLevelPercentage < 8) {
 	       Current_Status.IND_FUEL = true;
 	     } else {
 	       Current_Status.IND_FUEL = false;
@@ -1841,12 +1849,14 @@ void Start_FUELUSED_11(void *argument)
 	                  // Для отображения целого значения (например, на дисплее)
 //	                  Current_Status.remains_km_int = (int)(Current_Status.remains_km + 0.5f);
 
-	                  osDelay(100);
+
 	              }
 
 	              freeMovingAverage(&fuelUserMA);
 	              freeMovingAverage(&remainsMA);
 
+
+	              osDelay(100);
   /* USER CODE END Start_FUELUSED_11 */
 }
 
@@ -1864,7 +1874,7 @@ void Start_UART_Task(void *argument)
   /* Infinite loop */
   for(;;){
 	  // Формируем JSON-строку (build_status_json должен возвращать malloc-строку!)
-	  char* json_str = build_status_json();
+/*	  char* json_str = build_data_json(1, 16, fuelLevelTable);
 	  if (json_str)
 	  {
 	      // Ждём, пока UART не освободится (максимум 100 попыток по 1 мс)
@@ -1892,7 +1902,7 @@ void Start_UART_Task(void *argument)
 	          }
 	          free(json_str);
 	      }
-	  }
+	  }*/
 
 	        osDelay(200); // Пауза между отправками (200 мс)
 	    }
@@ -1918,15 +1928,17 @@ void Start_MotohoursTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-	  osDelay(1000); // 1 секунда
+	  osDelay(1000);
+	  if (Current_Status.RPM > 100)
+	  {// 1 секунда
 	  Current_Status.MOTOHOURS++;
 	  // Сохраняем только если прошло SAVE_INTERVAL секунд
-	          if ((Current_Status.MOTOHOURS - last_saved) >= SAVE_INTERVAL) {
-	              if (EEPROM_WriteMotohours(Current_Status.MOTOHOURS) == HAL_OK) {
-	                  eeprom_wait_ready(); // обязательно дождаться окончания записи!
-	                  last_saved = Current_Status.MOTOHOURS;
-	              }
-	          }
+	   if ((Current_Status.MOTOHOURS - last_saved) >= SAVE_INTERVAL) {
+	       if (EEPROM_WriteMotohours(Current_Status.MOTOHOURS) == HAL_OK) {
+	           eeprom_wait_ready(); // обязательно дождаться окончания записи!
+	           }   last_saved = Current_Status.MOTOHOURS;
+	      }
+	}
   }
   /* USER CODE END Start_MotohoursTask */
 }
@@ -1956,8 +1968,8 @@ void Start_R_Buttan_Task14(void *argument)
         Current_Status.container6 = false;
     }
 
-    // Уменьшаем задержку для более отзывчивой системы
-    osDelay(1); // 100 мс вместо 5 сек
+
+    osDelay(1);
   }
   /* USER CODE END Start_R_Buttan_Task14 */
 }
@@ -1990,16 +2002,48 @@ void Start_Buttan_L_Task(void *argument)
 void Start_JSON_Parse_Task(void *argument)
 {
   /* USER CODE BEGIN Start_JSON_Parse_Task */
-	char json_buf[JSON_MSG_MAX_LEN];
+
+
+
+   JsonMessage msg;
   /* Infinite loop */
   for(;;)
   {
-	  // Ждём новое сообщение в очереди (osWaitForever - блокирует, пока не придёт)
-	          if (osMessageQueueGet(jsonQueue, json_buf, NULL, osWaitForever) == osOK)
-	          {
-	              handle_json_message(json_buf);
-	          }
-    osDelay(1);
+
+  	  /// Получаем строку JSON из очереди (блокирующий вызов)
+      if (osMessageQueueGet(jsonQueueHandle, json_buf, NULL, osWaitForever) == osOK)
+      {
+          memset(&msg, 0, sizeof(msg));
+          if (parse_and_dispatch_json(json_buf, &msg))
+          {
+              switch (msg.type)
+              {
+                  case JSON_TYPE_COMMAND:
+                      handle_command(&msg.payload.command);
+                      break;
+                  case JSON_TYPE_UPDATE:
+                      // handle_status_update(&msg.payload.status);
+                      break;
+                  case JSON_TYPE_FLAGS:
+                      // handle_flags_update(&msg.payload.flags);
+                      break;
+                  case JSON_TYPE_DATA:
+                      handle_data(&msg.payload.data);
+                      break;
+                  case JSON_TYPE_REQUEST:
+                      // handle_request(&msg.payload.request);
+                      break;
+                  default:
+                      // Логировать неизвестный тип
+                      break;
+              }
+          }
+          else
+          {
+              // Логировать ошибку парсинга
+          }
+     }
+osDelay(1);
   }
   /* USER CODE END Start_JSON_Parse_Task */
 }
@@ -2017,7 +2061,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   /* USER CODE BEGIN Callback 0 */
 
   /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM6) {
+  if (htim->Instance == TIM6)
+  {
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */

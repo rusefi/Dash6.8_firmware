@@ -26,4 +26,5 @@ void USART3_JSON_TxCpltCallback(UART_HandleTypeDef *huart);
 
 // Обработка приёма
 void USART3_JSON_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size);
-
+//отправка строки json
+void send_json_over_uart(char* json);

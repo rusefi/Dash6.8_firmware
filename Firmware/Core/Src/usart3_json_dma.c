@@ -90,7 +90,6 @@ HAL_StatusTypeDef USART3_JSON_Send(const char* json_str) {
     return send_next_packet(&huart3);
 }
 
-// Приём (новая функциональность)
 void USART3_JSON_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
     if (huart->Instance != USART3) return;
 
@@ -106,14 +105,10 @@ void USART3_JSON_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
         }
 
         if (byte == PACKET_END_MARKER) {
-            if (hj.rx_json_idx < JSON_RX_BUF_SIZE) {
-                hj.rx_json_buf[hj.rx_json_idx] = '\0';
-            } else {
-                hj.rx_json_buf[JSON_RX_BUF_SIZE-1] = '\0';
-            }
+            hj.rx_json_buf[(hj.rx_json_idx < JSON_RX_BUF_SIZE) ? hj.rx_json_idx : (JSON_RX_BUF_SIZE-1)] = '\0';
 
             if (hj.rx_callback) {
-                hj.rx_callback((char*)hj.rx_json_buf);
+                hj.rx_callback((char*)hj.rx_json_buf); // В callback копируйте строку!
             }
             hj.rx_receiving = 0;
             continue;
@@ -123,10 +118,10 @@ void USART3_JSON_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
             hj.rx_json_buf[hj.rx_json_idx++] = byte;
         } else {
             hj.rx_receiving = 0; // Переполнение буфера
+            // Можно добавить логирование
         }
     }
 
-    // Перезапускаем приём
     HAL_UARTEx_ReceiveToIdle_DMA(huart, hj.rx_dma_buf, JSON_RX_DMA_BUF_SIZE);
 }
 
@@ -137,4 +132,35 @@ void USART3_JSON_TxCpltCallback(UART_HandleTypeDef *huart) {
     if (huart->Instance == USART3) {
         send_next_packet(huart);
     }
+}
+
+void send_json_over_uart(char* json)
+{
+    if (!json) return;
+
+    // Ждём, пока UART не освободится (максимум 100 попыток по 1 мс)
+    uint32_t try_cnt = 0;
+    while (USART3_JSON_IsTxBusy())
+    {
+        osDelay(1);
+        if (++try_cnt > 100)
+        {
+            // UART завис? Освобождаем память и выходим
+            free(json);
+            return;
+        }
+    }
+
+    // UART свободен, отправляем строку
+    if (USART3_JSON_Send(json) == HAL_OK)
+    {
+        // Можно добавить логирование успеха
+    }
+    else
+    {
+        // Ошибка отправки, можно залогировать
+    }
+
+    // Освобождаем память
+    free(json);
 }

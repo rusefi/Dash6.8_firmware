@@ -10,7 +10,8 @@
 
 #pragma once
 #include "Globals.h"
-
+#include "commands.h"
+#include "data.h"
 // Тип сообщения
 typedef enum {
     JSON_TYPE_UNKNOWN = 0,
@@ -44,7 +45,7 @@ int parse_command_json(const char* json_str, Command_t* out_cmd);
 int parse_data_json(const char* json_str, Data_t* out_data);
 int parse_request_json(const char* json_str, Request_t* out_req);
 
+char* build_command_json(const char* type_str, int command_id, const int* params, int params_len);
 
-
-
+char* build_data_json(uint8_t data_type, uint16_t data_length, const float* data_buffer);
 #endif /* INC_JSON_DISPATCHER_H_ */

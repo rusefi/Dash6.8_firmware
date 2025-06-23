@@ -134,7 +134,7 @@ void Handle_BO_515(uint8_t *data) {
   Current_Status.MCUTemp = ((data[6] >> 0) & 0xFF) * 1 - 40;
 
   // SG_ FuelLevel : 56|8@1+ (0.5,0) [0|0] "%"
-  Current_Status.FuelLevel = ((data[7] >> 0) & 0xFF) * 0.5;
+  Current_Status.FuelLevelRaw = ((data[7] >> 0) & 0xFF) * 0.5;
 }
 
 void Handle_BO_516(uint8_t *data) {

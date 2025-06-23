@@ -188,7 +188,7 @@ void Screen1View::handleTickEvent() {
 
 
 
-	gauge1.updateValue(Current_Status.FuelLevel, 0);
+	gauge1.updateValue(Current_Status.FuelLevelGui, 0);
 	gauge1.invalidate();
 
 	gauge2.updateValue(Current_Status.CoolantTemp, 0);

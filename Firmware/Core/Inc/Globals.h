@@ -61,6 +61,8 @@ extern "C" {
     #define LCD_RES_Y               480
 #endif
 
+
+
 //----------------------
 // Перечисление типов CAN
 //----------------------
@@ -102,22 +104,9 @@ typedef union {
     uint32_t  raw;
 } FlagsUnion_t;
 
-//----------------------
-// Структура команды
-//----------------------
-typedef struct {
-    uint8_t  command_id;                // Идентификатор команды
-    uint8_t  params[16];                // Параметры команды
-    uint8_t  params_length;             // Длина параметров
-} Command_t;
 
-//----------------------
-// Структура данных
-//----------------------
-typedef struct {
-    uint8_t   data_buffer[64];          // Буфер данных
-    uint16_t  data_length;              // Длина данных
-} Data_t;
+
+
 
 //----------------------
 // Структура запроса
@@ -181,7 +170,7 @@ typedef struct {
     int8_t    AUX1Temp;                 // Температура AUX1, °C
     int8_t    AUX2Temp;                 // Температура AUX2, °C
     int8_t    MCUTemp;                  // Температура МК, °C
-    float     FuelLevel;                // Уровень топлива, %
+    float     FuelLevelRaw;                // Уровень топлива, %
 
     // BO_516 BASE4
     float     OilPress;                 // Давление масла, кПа
@@ -328,11 +317,15 @@ typedef struct {
     uint8_t     CELL[16];               // Ячейки (например, для данных BMS)
 
     float     OilLevel;
+    float     FuelLevel;
+    float     FuelLevelGui;
 
     SCREEN_Channel SCREEN_FIELDS[8];    // Параметры экрана
     uint8_t     SCREEN_FIELDS_CHANGED;  // Флаг изменения экрана
 
 } Statuses;
+
+
 
 //----------------------
 // Буфер передачи по UART

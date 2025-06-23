@@ -1,5 +1,5 @@
 /*
- * extern.h
+ *
  *
  *  Created on: May 14, 2020
  *      Author: Dev
@@ -26,6 +26,7 @@ extern uint8_t    uartTransmitBuffer[128];// Буфер передачи по UA
 
 /* --- UART3 (DMA) --- */
 extern UART_HandleTypeDef huart3;         // Дескриптор UART3 (DMA)
+extern SPI_HandleTypeDef hspi1;
 
 /*-----------------------------------------------------------------------------
  * Добавляйте сюда extern-переменные для других модулей по мере необходимости

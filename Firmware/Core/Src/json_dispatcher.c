@@ -7,10 +7,13 @@
 
 
 
-
+#include "level_tables.h"
 #include "json_dispatcher.h"
 #include "cJSON.h"
 #include <string.h>
+#include "data.h"
+#include <math.h>
+#include <stdio.h>
 
 // Макросы для безопасного извлечения чисел
 #define GET_INT(obj, key, def) (cJSON_HasObjectItem(obj, key) && cJSON_IsNumber(cJSON_GetObjectItem(obj, key)) ? cJSON_GetObjectItem(obj, key)->valueint : (def))
@@ -23,7 +26,7 @@ int parse_status_json(const char* json_str, Statuses* out_status) {
     cJSON *payload = cJSON_GetObjectItem(root, "payload");
     if (!cJSON_IsObject(payload)) { cJSON_Delete(root); return 0; }
 
-    // Пример заполнения только части полей (добавьте остальные по необходимости!)
+
     out_status->RPM          = GET_INT(payload, "rpm", 0);
     out_status->MAP          = GET_DBL(payload, "map", 0.0);
     out_status->TPS          = GET_DBL(payload, "tps", 0.0);
@@ -97,6 +100,7 @@ int parse_data_json(const char* json_str, Data_t* out_data) {
     cJSON *payload = cJSON_GetObjectItem(root, "payload");
     if (!cJSON_IsObject(payload)) { cJSON_Delete(root); return 0; }
 
+    out_data->data_type = GET_INT(payload, "data_type", 0);
     cJSON *buffer = cJSON_GetObjectItem(payload, "data_buffer");
     if (cJSON_IsArray(buffer)) {
         int count = cJSON_GetArraySize(buffer);
@@ -143,22 +147,22 @@ int parse_and_dispatch_json(const char* json_str, JsonMessage* out_msg) {
         int res = parse_status_json(json_str, &out_msg->payload.status);
         cJSON_Delete(root);
         return res;
-    } else if (strcmp(type->valuestring, "Flags") == 0) {
+    } else if (strcmp(type->valuestring, "flags") == 0) {
         out_msg->type = JSON_TYPE_FLAGS;
         int res = parse_flags_json(json_str, &out_msg->payload.flags);
         cJSON_Delete(root);
         return res;
-    } else if (strcmp(type->valuestring, "Command") == 0) {
+    } else if (strcmp(type->valuestring, "command") == 0) {
         out_msg->type = JSON_TYPE_COMMAND;
         int res = parse_command_json(json_str, &out_msg->payload.command);
         cJSON_Delete(root);
         return res;
-    } else if (strcmp(type->valuestring, "Data") == 0) {
+    } else if (strcmp(type->valuestring, "data") == 0) {
         out_msg->type = JSON_TYPE_DATA;
         int res = parse_data_json(json_str, &out_msg->payload.data);
         cJSON_Delete(root);
         return res;
-    } else if (strcmp(type->valuestring, "Request") == 0) {
+    } else if (strcmp(type->valuestring, "request") == 0) {
         out_msg->type = JSON_TYPE_REQUEST;
         int res = parse_request_json(json_str, &out_msg->payload.request);
         cJSON_Delete(root);
@@ -169,3 +173,89 @@ int parse_and_dispatch_json(const char* json_str, JsonMessage* out_msg) {
     cJSON_Delete(root);
     return 0;
 }
+
+
+
+
+// для отправки команд
+// params — массив параметров (int), params_len — их количество
+// type_str — строка с типом ("command", "request" и т.д.)
+char* build_command_json(const char* type_str, int command_id, const int* params, int params_len) {
+    cJSON *root = cJSON_CreateObject();
+    if (!root) return NULL;
+
+    // Добавляем поле "type"
+    cJSON_AddStringToObject(root, "type", type_str ? type_str : "command");
+
+    // Создаём payload
+    cJSON *payload = cJSON_CreateObject();
+    if (!payload) {
+        cJSON_Delete(root);
+        return NULL;
+    }
+
+    // Добавляем command_id
+    cJSON_AddNumberToObject(payload, "command_id", command_id);
+
+    // Добавляем массив параметров
+    cJSON *params_array = cJSON_CreateIntArray(params, params_len);
+    if (!params_array) {
+        cJSON_Delete(payload);
+        cJSON_Delete(root);
+        return NULL;
+    }
+    cJSON_AddItemToObject(payload, "params", params_array);
+
+    // Вкладываем payload в root
+    cJSON_AddItemToObject(root, "payload", payload);
+
+    // Генерируем строку
+    char *json_str = cJSON_PrintUnformatted(root);
+    cJSON_Delete(root);
+    return json_str; // Не забудь освободить через free() после использования!
+}
+
+// data_buffer — массив float (или int, если значения целые)
+// data_length — количество элементов в массиве
+
+char* build_data_json(uint8_t data_type, uint16_t data_length, const float* data_buffer) {
+    cJSON *root = cJSON_CreateObject();
+    if (!root) return NULL;
+
+    // Добавляем поле "type"
+    cJSON_AddStringToObject(root, "type", "data");
+
+    // Создаём payload
+    cJSON *payload = cJSON_CreateObject();
+    if (!payload) {
+        cJSON_Delete(root);
+        return NULL;
+    }
+
+    // Добавляем поля data_type и data_length
+    cJSON_AddNumberToObject(payload, "data_type", data_type);
+    cJSON_AddNumberToObject(payload, "data_length", data_length);
+
+    // Создаём массив data_buffer
+    cJSON *buffer_array = cJSON_CreateArray();
+    if (!buffer_array) {
+        cJSON_Delete(payload);
+        cJSON_Delete(root);
+        return NULL;
+    }
+    for (uint16_t i = 0; i < data_length; ++i) {
+
+        cJSON_AddItemToArray(buffer_array, cJSON_CreateNumber(data_buffer[i]));
+    }
+    cJSON_AddItemToObject(payload, "data_buffer", buffer_array);
+
+    // Вкладываем payload в root
+    cJSON_AddItemToObject(root, "payload", payload);
+
+    // Генерируем строку
+    char *json_str = cJSON_PrintUnformatted(root);
+    cJSON_Delete(root);
+    return json_str; // Не забудь освободить через free() после использования!
+}
+
+
