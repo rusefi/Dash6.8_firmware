@@ -1,0 +1,8 @@
+../Core/Src/json_dispatcher.c:22:5:parse_status_json	24	static
+../Core/Src/json_dispatcher.c:55:5:parse_flags_json	24	static
+../Core/Src/json_dispatcher.c:75:5:parse_command_json	40	static
+../Core/Src/json_dispatcher.c:96:5:parse_data_json	40	static
+../Core/Src/json_dispatcher.c:117:5:parse_request_json	40	static
+../Core/Src/json_dispatcher.c:138:5:parse_and_dispatch_json	48	static
+../Core/Src/json_dispatcher.c:183:7:build_command_json	40	static
+../Core/Src/json_dispatcher.c:221:7:build_data_json	40	static

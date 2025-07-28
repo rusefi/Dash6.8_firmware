@@ -1,0 +1,11 @@
+../Core/Src/ili211x.c:10:12:ili211x_read_reg	40	static
+../Core/Src/ili211x.c:15:12:ili211x_read_touch_data	48	static
+../Core/Src/ili211x.c:36:13:ili211x_touchdata_to_coords	24	static
+../Core/Src/ili211x.c:48:9:ILI211X_Init	8	static
+../Core/Src/ili211x.c:64:6:ILI211X_Write	32	static
+../Core/Src/ili211x.c:73:9:ILI211X_Read	40	static
+../Core/Src/ili211x.c:82:6:ILI211X_ReadMultiple	32	static
+../Core/Src/ili211x.c:87:9:ILI211X_GetGestureID	8	static
+../Core/Src/ili211x.c:92:9:ILI211X_GetNumOfTouches	8	static
+../Core/Src/ili211x.c:97:16:ILI211X_ReadPoint	96	static
+../Core/Src/ili211x.c:115:6:ILI211X_SetDisplaySize	32	static

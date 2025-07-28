@@ -1,0 +1,15 @@
+../Core/Src/level_tables.c:49:17:crc32_calc	3
+../Core/Src/level_tables.c:61:13:flash_write_array	2
+../Core/Src/level_tables.c:76:13:flash_read_array	2
+../Core/Src/level_tables.c:92:6:fuel_level_save_table	1
+../Core/Src/level_tables.c:101:6:fuel_level_load_table	2
+../Core/Src/level_tables.c:115:7:fuel_level_get_liters	4
+../Core/Src/level_tables.c:128:6:fuel_level_set_table	3
+../Core/Src/level_tables.c:135:8:fuel_level_get_table	3
+../Core/Src/level_tables.c:144:6:oil_level_save_table	1
+../Core/Src/level_tables.c:154:6:oil_level_load_table	2
+../Core/Src/level_tables.c:169:7:oil_level_get_liters	4
+../Core/Src/level_tables.c:182:6:oil_level_set_table	3
+../Core/Src/level_tables.c:189:8:oil_level_get_table	3
+../Core/Src/level_tables.c:197:6:test_flash_erase_sector	4
+../Core/Src/level_tables.c:224:6:test_flash_table	2

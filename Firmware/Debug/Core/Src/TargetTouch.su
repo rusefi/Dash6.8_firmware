@@ -1,0 +1,5 @@
+../Core/Src/TargetTouch.c:13:6:TOUCH_Init	88	static
+../Core/Src/TargetTouch.c:25:9:TOUCH_IsPressed	4	static
+../Core/Src/TargetTouch.c:32:6:TOUCH_Set	4	static
+../Core/Src/TargetTouch.c:39:6:TOUCH_Reset	4	static
+../Core/Src/TargetTouch.c:49:12:TOUCH_GetData	32	static

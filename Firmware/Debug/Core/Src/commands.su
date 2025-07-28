@@ -1,0 +1,2 @@
+../Core/Src/commands.c:23:6:handle_command	32	static
+../Core/Src/commands.c:66:6:send_command	40	static
